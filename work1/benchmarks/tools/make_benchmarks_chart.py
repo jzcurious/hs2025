@@ -39,6 +39,7 @@ def parse_data(path_to_result: Path = PATH_TO_RESULT) -> dict:
 def make_chart(
     complexity: dict,
     path_to_chart=PATH_TO_CHART,
+    cpu_time=False,
     width=1000,
     height=600,
     xaxis_log=True,
@@ -51,7 +52,7 @@ def make_chart(
         fig.add_trace(
             go.Scatter(
                 x=df["size"],
-                y=df["real_time"],
+                y=df["cpu_time"] if cpu_time else df["real_time"],
                 mode="lines+markers",
                 name=benchmark,
                 marker=dict(size=6),
@@ -65,7 +66,7 @@ def make_chart(
         yaxis_title=f"Time, {list(complexity.values())[0].time_unit[0]}",
         xaxis_type="log" if xaxis_log else "linear",
         yaxis_type="log" if yaxis_log else "linear",
-        legend_title="Case",
+        legend_title="Benchmarks:",
         hovermode="x unified",
         template="plotly_dark" if dark else "plotly_white",
         width=width,
@@ -116,6 +117,13 @@ if __name__ == "__main__":
         type=str,
         default=str(PATH_TO_CHART),
         help="Output path for the chart file",
+    )
+
+    argparser.add_argument(
+        "--cpu-time",
+        action="store_true",
+        default=False,
+        help="CPU Time Chart",
     )
 
     argparser.add_argument(

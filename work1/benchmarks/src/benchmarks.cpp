@@ -62,7 +62,7 @@ static void BM_OurVectorAddGPU(benchmark::State& state) {
 BENCHMARK(BM_EigenVectorAddCPU)
     ->RangeMultiplier(8)
     ->Ranges({
-        {8, 1 << 24}
+        {8, 1 << 26}
 })
     ->Unit(benchmark::kMillisecond)
     ->UseRealTime()
@@ -71,7 +71,7 @@ BENCHMARK(BM_EigenVectorAddCPU)
 BENCHMARK(BM_OurVectorAddGPU)
     ->RangeMultiplier(8)
     ->Ranges({
-        {8, 1 << 24}
+        {8, 1 << 26}
 })
     ->Unit(benchmark::kMillisecond)
     ->UseManualTime();
