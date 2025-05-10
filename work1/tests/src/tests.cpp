@@ -4,9 +4,8 @@
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 
-class VAddTest
-    : public ::testing::TestWithParam<std::pair<std::size_t, float>> {
-protected:
+class VAddTest : public ::testing::TestWithParam<std::pair<std::size_t, float>> {
+ protected:
   bool vadd_test_(std::size_t len, float tol) {
     Eigen::VectorXf a = Eigen::VectorXf::Random(len);
     Eigen::VectorXf b = Eigen::VectorXf::Random(len);
@@ -20,7 +19,7 @@ protected:
     cudaMalloc(&d_c, size);
 
     cudaMemcpy(d_a, a.data(), size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_a, b.data(), size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, b.data(), size, cudaMemcpyHostToDevice);
 
     w1::vadd_f32(d_a, d_b, d_c, len);
 
