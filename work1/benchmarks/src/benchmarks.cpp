@@ -4,7 +4,7 @@
 
 #include "work1/wrapper_vadd.hpp"
 
-static void BM_EigenVectorAddCPU(benchmark::State &state) {
+static void BM_EigenVectorAddCPU(benchmark::State& state) {
   int len = state.range(0);
 
   Eigen::VectorXf a = Eigen::VectorXf::Random(len);
@@ -18,7 +18,7 @@ static void BM_EigenVectorAddCPU(benchmark::State &state) {
   }
 }
 
-static void BM_OurVectorAddGPU(benchmark::State &state) {
+static void BM_OurVectorAddGPU(benchmark::State& state) {
   int len = state.range(0);
 
   Eigen::VectorXf a = Eigen::VectorXf::Random(len);
@@ -47,17 +47,21 @@ static void BM_OurVectorAddGPU(benchmark::State &state) {
 
 BENCHMARK(BM_EigenVectorAddCPU)
     ->RangeMultiplier(8)
-    ->Ranges({{8, 1 << 18}}) // 8..262144
+    ->Ranges({
+        {8, 1 << 18}
+})  // 8..262144
     ->Unit(benchmark::kMicrosecond)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
-// BENCHMARK(BM_OurVectorAddGPU)
-//     ->RangeMultiplier(8)
-//     ->Ranges({{8, 1 << 18}}) // 8..262144
-//     ->Unit(benchmark::kMicrosecond)
-//     ->UseRealTime()
-//     ->MeasureProcessCPUTime();
+BENCHMARK(BM_OurVectorAddGPU)
+    ->RangeMultiplier(8)
+    ->Ranges({
+        {8, 1 << 18}
+})  // 8..262144
+    ->Unit(benchmark::kMicrosecond)
+    ->UseRealTime()
+    ->MeasureProcessCPUTime();
 
 BENCHMARK_MAIN();
 
