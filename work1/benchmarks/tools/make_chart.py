@@ -17,8 +17,14 @@ def load_data():
     df = pd.DataFrame(data["benchmarks"])
     df["benchmark"] = df["name"].apply(lambda x: x.split("/")[0])
     df["size"] = df["name"].apply(lambda x: int(x.split("/")[1]))
-    eigen_df = df[df["benchmark"] == "BM_EigenVectorAddCPU"].sort_values("size")
-    cuda_df = df[df["benchmark"] == "BM_OurVectorAddGPU"].sort_values("size")
+
+    eigen_df = df[df["benchmark"] == "BM_EigenVectorAddCPU"].sort_values(
+        "size"
+    )  # pyright: ignore
+
+    cuda_df = df[df["benchmark"] == "BM_OurVectorAddGPU"].sort_values(
+        "size"
+    )  # pyright: ignore
 
     if eigen_df.empty or cuda_df.empty:
         raise ValueError("Data not found")
@@ -74,8 +80,8 @@ def make_chart(data):
 
 def show_chart(fig):
     try:
-        from google.colab import output
-        from IPython.display import display, HTML
+        from google.colab import output  # noqa # pyright: ignore
+        from IPython.display import display, HTML  # pyright: ignore
 
         display(HTML(fig.to_html()))
     except ImportError:
