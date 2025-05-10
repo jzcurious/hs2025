@@ -74,8 +74,7 @@ BENCHMARK(BM_OurVectorAddGPU)
         {8, 1 << 24}
 })
     ->Unit(benchmark::kMillisecond)
-    ->UseRealTime()
-    ->MeasureProcessCPUTime();
+    ->UseManualTime();
 
 BENCHMARK_MAIN();
 
