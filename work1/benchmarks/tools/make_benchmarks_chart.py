@@ -120,7 +120,7 @@ if __name__ == "__main__":
     )
 
     argparser.add_argument(
-        "--cpu-time",
+        "--cpu",
         action="store_true",
         default=False,
         help="CPU Time Chart",
@@ -169,6 +169,7 @@ if __name__ == "__main__":
         make_chart(
             parse_data(Path(args.result)),
             args.chart,
+            args.cpu,
             args.width,
             args.height,
             args.xlog,
