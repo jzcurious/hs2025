@@ -35,9 +35,23 @@ static void BM_OurVectorAddGPU(benchmark::State& state) {
   cudaMemcpy(d_a, b.data(), size, cudaMemcpyHostToDevice);
 
   for (auto _ : state) {
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
     w1::vadd_f32(d_a, d_b, d_c, len);
-    benchmark::DoNotOptimize(d_c);
+    cudaEventRecord(stop);
+
+    cudaEventSynchronize(stop);
+
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+
+    benchmark::DoNotOptimize(milliseconds);
     benchmark::ClobberMemory();
+
+    state.SetIterationTime(milliseconds / 1000);
   }
 
   cudaFree(d_a);
@@ -48,18 +62,18 @@ static void BM_OurVectorAddGPU(benchmark::State& state) {
 BENCHMARK(BM_EigenVectorAddCPU)
     ->RangeMultiplier(8)
     ->Ranges({
-        {8, 1 << 18}
-})  // 8..262144
-    ->Unit(benchmark::kMicrosecond)
+        {8, 1 << 24}
+})
+    ->Unit(benchmark::kMillisecond)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_OurVectorAddGPU)
     ->RangeMultiplier(8)
     ->Ranges({
-        {8, 1 << 18}
-})  // 8..262144
-    ->Unit(benchmark::kMicrosecond)
+        {8, 1 << 24}
+})
+    ->Unit(benchmark::kMillisecond)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
