@@ -22,6 +22,7 @@ CompileFlags:
     - "-ferror-limit=0"
     # include directories
     - "-I../include"
+    - "-I../work1/include"
     - "-I../../work1/include"
   Remove:
     # strip CUDA fatbin args
@@ -40,6 +41,7 @@ CompileFlags:
     - "--options-file"
     - "-rdc=true"
     - "-rdc=false"
+    - "-arch=native"
 Hover:
   ShowAKA: No
 InlayHints:
