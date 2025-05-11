@@ -17,8 +17,6 @@ def calc_speedup(
     time_key = "cpu_time" if cpu_time else "real_time"
     target_df["speedup"] = reference_df[time_key].values / target_df[time_key].values
 
-    print(target_df)
-
     return target_df
 
 
