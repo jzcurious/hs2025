@@ -12,9 +12,10 @@ def calc_speedup(
     target_df = complexity[benchmark_target]
     reference_df = complexity[benchmark_reference]
 
-    target_df["reference"] = reference_df["benchmark"]
+    target_df["reference"] = reference_df["benchmark"].values
+
     time_key = "cpu_time" if cpu_time else "real_time"
-    target_df["speedup"] = reference_df[time_key] / target_df[time_key]
+    target_df["speedup"] = reference_df[time_key].values / target_df[time_key].values
 
     print(target_df)
 
@@ -42,8 +43,10 @@ def make_speedup_chart(
         )
     )
 
+    title = f"Speedup: {target_df['benchmark'].values[0]} vs {target_df['reference'].values[0]}"
+
     fig.update_layout(
-        title=f"Speedup: {target_df['benchmark'][0]} vs {target_df['reference'][0]}",
+        title=title,
         title_x=0.5,
         xaxis_title="N",
         yaxis_title="Speedup",
@@ -91,7 +94,7 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     target_df = calc_speedup(
-        dry.parse_complexity(Path(args.result)),
+        dry.parse_complexity(Path(args.json)),
         args.target,
         args.reference,
     )
