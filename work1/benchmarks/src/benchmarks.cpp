@@ -112,21 +112,27 @@ static void BM_OurVectorAddGPUCopyOverhead(benchmark::State& state) {
   cudaFree(d_c);
 }
 
+constexpr const int multiplier = 8;
+constexpr const auto range = std::make_pair(8, 1 << 26);
+constexpr const auto unit = benchmark::kMillisecond;
+
 BENCHMARK(BM_EigenVectorAddCPU)
-    ->RangeMultiplier(8)
-    ->Ranges({
-        {8, 1 << 26}
-})
-    ->Unit(benchmark::kMillisecond)
+    ->RangeMultiplier(multiplier)
+    ->Ranges({range})
+    ->Unit(unit)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_OurVectorAddGPU)
-    ->RangeMultiplier(8)
-    ->Ranges({
-        {8, 1 << 26}
-})
-    ->Unit(benchmark::kMillisecond)
+    ->RangeMultiplier(multiplier)
+    ->Ranges({range})
+    ->Unit(unit)
+    ->UseManualTime();
+
+BENCHMARK(BM_OurVectorAddGPUCopyOverhead)
+    ->RangeMultiplier(multiplier)
+    ->Ranges({range})
+    ->Unit(unit)
     ->UseManualTime();
 
 BENCHMARK_MAIN();
