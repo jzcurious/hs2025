@@ -18,14 +18,18 @@ set_target_properties(work2 PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
 )
 
+target_compile_options(work2 PRIVATE
+    -Wall -O3 -Wno-deprecated-gpu-targets
+)
+
+target_compile_options(work2 PRIVATE
+    -Wall -O3
+)
+
 target_compile_definitions(work2 PRIVATE
     "DEBUG=$<CONFIG:Debug>"
 )
 
 target_include_directories(work2 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
-)
-
-target_compile_options(work2 PRIVATE
-    -Wall -O3 -Wno-deprecated-gpu-targets
 )

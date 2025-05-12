@@ -1,7 +1,12 @@
+#ifndef _WRAPPER_VADD_HPP_
+#define _WRAPPER_VADD_HPP_
+
 #include <cstddef>
 
 namespace w1 {
 
-void vadd_f32(const float *a, const float *b, float *c, std::size_t len);
+void vadd_f32(const float* a, const float* b, float* c, std::size_t len);
 
-} // namespace w1
+}  // namespace w1
+
+#endif  // _WRAPPER_VADD_HPP_

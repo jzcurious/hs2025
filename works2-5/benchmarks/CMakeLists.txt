@@ -29,6 +29,10 @@ target_compile_features(work2-5-benchmarks PRIVATE
     cxx_std_20
 )
 
+target_compile_options(work2-5-benchmarks PRIVATE
+    -Wall -O3
+)
+
 target_link_libraries(work2-5-benchmarks PRIVATE
     cuda-timer
     CUDA::cudart
