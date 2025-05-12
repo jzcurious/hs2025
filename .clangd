@@ -24,6 +24,7 @@ CompileFlags:
     - "-I../include"
     - "-I../work1/include"
     - "-I../../work1/include"
+    - "-I../../../misc/cuda_timer/include"
   Remove:
     # strip CUDA fatbin args
     - "-Xfatbin*"

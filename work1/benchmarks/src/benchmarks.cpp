@@ -2,6 +2,7 @@
 #include <benchmark/benchmark.h>
 #include <cuda_runtime.h>
 
+#include "cuda_timer.hpp"
 #include "work1/wrapper_vadd.hpp"
 
 static void BM_EigenVectorAddCPU(benchmark::State& state) {
@@ -17,31 +18,6 @@ static void BM_EigenVectorAddCPU(benchmark::State& state) {
     benchmark::ClobberMemory();
   }
 }
-
-class CUDATimer {
- private:
-  float& _elapse_time_s;
-  cudaEvent_t _start, _stop;
-
- public:
-  CUDATimer(float& elapse_time_s)
-      : _elapse_time_s(elapse_time_s) {
-    cudaEventCreate(&_start);
-    cudaEventCreate(&_stop);
-
-    cudaEventRecord(_start);
-  }
-
-  ~CUDATimer() {
-    cudaEventRecord(_stop);
-    cudaEventSynchronize(_stop);
-
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, _start, _stop);
-
-    _elapse_time_s = milliseconds / 1000;
-  }
-};
 
 static void BM_OurVectorAddGPU(benchmark::State& state) {
   int len = state.range(0);

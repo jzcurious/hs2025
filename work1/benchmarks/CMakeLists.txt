@@ -31,6 +31,7 @@ target_compile_features(work1-benchmarks PRIVATE
 
 target_link_libraries(work1-benchmarks PRIVATE
     work1
+    cuda-timer
     CUDA::cudart
     benchmark::benchmark
     Eigen3::Eigen
