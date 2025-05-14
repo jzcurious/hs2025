@@ -1,8 +1,6 @@
 #ifndef _MATRIX_VIEW_HPP_
 #define _MATRIX_VIEW_HPP_
 
-#include "work2/matrix_kind.hpp"
-
 #include <concepts>
 #include <cstdint>  // IWYU pragma: keep
 
