@@ -17,20 +17,13 @@ CompileFlags:
 # Tweak the clangd parse settings for all files
 CompileFlags:
   Add:
+    - "-std=c++20"
     - "--cuda-path=/opt/cuda"
-    # report all errors
     - "-ferror-limit=0"
-    # include directories
-    - "-I../include"
-    - "-I../work1/include"
-    - "-I../../work1/include"
   Remove:
-    # strip CUDA fatbin args
     - "-Xfatbin*"
-    # strip CUDA arch flags
     - "-gencode*"
     - "--generate-code*"
-    # strip CUDA flags unknown to clang
     - "-ccbin*"
     - "--compiler-options*"
     - "--expt-extended-lambda"

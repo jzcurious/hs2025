@@ -1,7 +1,7 @@
 #ifndef _KERNEL_MM_NAIVE_
 #define _KERNEL_MM_NAIVE_
 
-#include "matrix_view.cuh"
+#include "work2/matrix_kind.hpp"
 
 template <MatrixKind MatrixT>
 __global__ void kernel_mm_naive(const MatrixT a, const MatrixT b, MatrixT c) {

@@ -1,13 +1,11 @@
-#ifndef _MATRIX_VIEW_CUH_
-#define _MATRIX_VIEW_CUH_
+#include "work2/matrix_view.hpp"
 
+#include <concepts>
 #include <cstdint>
-
-template <class T>
-concept MatrixKind = requires() { typename T::matrix_feature(); };
+#include <cuda_runtime.h>
 
 template <std::floating_point ScalarT>
-class MatrixView final {
+class MatrixView<ScalarT>::Impl final {
  private:
   ScalarT* _data;
   std::size_t _mrows;
@@ -17,7 +15,7 @@ class MatrixView final {
  public:
   struct matrix_feature {};
 
-  __host__ __device__ MatrixView(ScalarT* data, std::size_t mrows, std::size_t ncols)
+  __host__ __device__ Impl(ScalarT* data, std::size_t mrows, std::size_t ncols)
       : _data(data)
       , _mrows(mrows)
       , _ncols(ncols)
@@ -40,4 +38,4 @@ class MatrixView final {
   }
 };
 
-#endif  // _MATRIX_VIEW_CUH_
+template class MatrixView<float>;
