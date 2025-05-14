@@ -29,7 +29,9 @@ set_target_properties(work2 PROPERTIES
 )
 
 target_compile_options(work2 PRIVATE
-    -Wall -O3 -Wno-deprecated-gpu-targets --expt-relaxed-constexpr
+    -Wall -O3
+    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
+    $<$<COMPILE_LANGUAGE:CUDA>:-Wno-deprecated-gpu-targets>
 )
 
 target_include_directories(work2 PUBLIC
