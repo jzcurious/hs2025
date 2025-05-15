@@ -39,4 +39,5 @@ target_link_libraries(work1-benchmarks PRIVATE
     CUDA::cudart
     benchmark::benchmark
     Eigen3::Eigen
+    cuda-grid-heuristics
 )

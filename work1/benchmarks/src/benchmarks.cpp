@@ -3,7 +3,7 @@
 #include <cuda_runtime.h>
 
 #include "cuda_timer.hpp"
-#include "work1/wrapper_vadd.hpp"
+#include "work1/vadd.hpp"
 
 static void BM_EigenVectorAddCPU(benchmark::State& state) {
   int len = state.range(0);

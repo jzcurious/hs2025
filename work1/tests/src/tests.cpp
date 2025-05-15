@@ -1,12 +1,12 @@
-#include "work1/wrapper_vadd.hpp"
+#include "work1/vadd.hpp"
 
 #include <Eigen/Dense>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 
-class VAddTest : public ::testing::TestWithParam<std::pair<std::size_t, float>> {
+class VAddTest : public ::testing::TestWithParam<std::pair<std::uint32_t, float>> {
  protected:
-  bool vadd_test_(std::size_t len, float tol) {
+  bool vadd_test_(std::uint32_t len, float tol) {
     Eigen::VectorXf a = Eigen::VectorXf::Random(len);
     Eigen::VectorXf b = Eigen::VectorXf::Random(len);
     Eigen::VectorXf c = a + b;

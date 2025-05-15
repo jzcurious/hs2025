@@ -33,3 +33,5 @@ target_compile_options(work1 PRIVATE
 target_include_directories(work1 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
+
+target_link_libraries(work1 PRIVATE cuda-grid-heuristics)
