@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
-project(work2-5-tests LANGUAGES CXX)
+project(work2-5-tests LANGUAGES CXX CUDA)
+
+set(CMAKE_CUDA_ARCHITECTURES native)
+
+set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
+set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES OFF)
+set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_OBJECTS OFF)
 
 include(GoogleTest)
 include(FetchContent)
@@ -18,24 +24,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(eigen)
 
-find_package(CUDAToolkit REQUIRED)
-
 file(GLOB_RECURSE SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu
 )
 
 add_executable(work2-5-tests ${SRC})
 
 target_compile_features(work2-5-tests PRIVATE
     cxx_std_20
+    cuda_std_20
 )
 
-target_compile_options(work2-5-tests PRIVATE
+target_compile_options(work2 PRIVATE
     -Wall -O3
+    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
+    $<$<COMPILE_LANGUAGE:CUDA>:-Wno-deprecated-gpu-targets>
 )
 
 target_link_libraries(work2-5-tests PRIVATE
-    CUDA::cudart
     GTest::gtest_main
     Eigen3::Eigen
     work2

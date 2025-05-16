@@ -42,6 +42,10 @@ class MatrixView final {
   __host__ __device__ std::uint32_t size(std::uint8_t axis) const {
     return axis ? _ncols : _mrows;
   }
+
+  __host__ __device__ std::uint32_t size() const {
+    return _ncols * _mrows;
+  }
 };
 
 #endif  // _MATRIX_VIEW_CUH_
