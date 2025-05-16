@@ -114,3 +114,4 @@ BENCHMARK(BM_OurVectorAddGPUCopyOverhead)
 BENCHMARK_MAIN();
 
 // TODO: allocate vectors from pool
+// TODO: fixture

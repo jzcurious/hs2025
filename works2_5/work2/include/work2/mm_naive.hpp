@@ -6,7 +6,7 @@
 namespace w2 {
 
 template <MatrixKind MatrixT>
-void matmul(const MatrixT a, const MatrixT b, MatrixT c);
+void matmul(const MatrixT& a, const MatrixT& b, MatrixT& c);
 
 }  // namespace w2
 

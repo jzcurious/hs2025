@@ -1,11 +1,11 @@
 #ifndef _KERNEL_MM_NAIVE_CUH_
 #define _KERNEL_MM_NAIVE_CUH_
 
-#include "work2/matrix_kind.hpp"
+#include "work2/matrix_kind.hpp"  // IWYU pragma: keep
 
 #include <cstdint>
 
-template <MatrixKind MatrixT>
+template <class MatrixT>
 __global__ void kernel_mm_naive(const MatrixT a, const MatrixT b, MatrixT c) {
   std::uint32_t i = blockIdx.y * blockDim.y + threadIdx.y;
   std::uint32_t j = blockIdx.x * blockDim.x + threadIdx.x;
