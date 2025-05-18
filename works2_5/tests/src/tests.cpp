@@ -7,9 +7,36 @@
 #include <cstdint>
 #include <gtest/gtest.h>
 
+#include <functional>
 #include <string>
 
+using MatrixViewT = MatrixView<float>;
+
+using OpMatMulT
+    = std::function<void(const MatrixViewT&, const MatrixViewT&, MatrixViewT&)>;
+
+class MMFunctor {
+ public:
+  const std::string label;
+
+ private:
+  OpMatMulT _opmm;
+
+ public:
+  MMFunctor(const char* label, OpMatMulT opmm)
+      : label(label)
+      , _opmm(opmm) {}
+
+  MatrixViewT& operator()(
+      const MatrixViewT& a, const MatrixViewT& b, MatrixViewT& c) const {
+    _opmm(a, b, c);
+    return c;
+  }
+};
+
 struct MatMulTestParams {
+  const MMFunctor& mmfunctor;
+
   bool colmajor;
   std::uint32_t m;
   std::uint32_t n;
@@ -18,8 +45,8 @@ struct MatMulTestParams {
 
   operator std::string() const {
     std::stringstream ss;
-    ss << (colmajor ? "colmajor_m" : "rowmajor_m") << std::to_string(m) << "_n"
-       << std::to_string(n) << "_k" << std::to_string(k);
+    ss << mmfunctor.label << (colmajor ? "_colmajor_m" : "_rowmajor_m")
+       << std::to_string(m) << "_n" << std::to_string(n) << "_k" << std::to_string(k);
     return ss.str();
   }
 
@@ -32,20 +59,20 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
  private:
   template <class EigenMatrix>
   bool matmul_test_template_(const MatMulTestParams& params) {
-    auto [colmajor, m, n, k, tol] = params;
+    auto [mmfunc, colmajor, m, n, k, tol] = params;
 
     EigenMatrix h_a = EigenMatrix::Random(m, k);
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = MatrixView<float>(_d_a, m, k, colmajor);
-    auto d_b = MatrixView<float>(_d_b, k, n, colmajor);
-    auto d_c = MatrixView<float>(_d_c, m, n, colmajor);
+    auto d_a = MatrixViewT(_d_a, m, k, colmajor);
+    auto d_b = MatrixViewT(_d_b, k, n, colmajor);
+    auto d_c = MatrixViewT(_d_c, m, n, colmajor);
 
     cudaMemcpy(_d_a, h_a.data(), h_a.size() * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(_d_b, h_b.data(), h_b.size() * sizeof(float), cudaMemcpyHostToDevice);
 
-    w2::matmul(d_a, d_b, d_c);
+    mmfunc(d_a, d_b, d_c);
 
     EigenMatrix hd_c = EigenMatrix(m, n);
     cudaMemcpy(
@@ -60,7 +87,7 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
   float* _d_c = nullptr;
 
   void SetUp() override {
-    auto [_, m, n, k, __] = GetParam();
+    auto [_1, _2, m, n, k, _3] = GetParam();
     cudaMalloc(&_d_a, sizeof(float) * m * k);
     cudaMalloc(&_d_b, sizeof(float) * k * n);
     cudaMalloc(&_d_c, sizeof(float) * m * n);
@@ -83,23 +110,25 @@ TEST_P(MatMulTest, matmul_test) {
   EXPECT_TRUE(matmul_test_(GetParam()));
 }
 
+const MMFunctor naive_mmfunc("naive", w2::matmul<MatrixViewT>);
+
 // clang-format off
 INSTANTIATE_TEST_SUITE_P(
     MatMulTests,
     MatMulTest,
     ::testing::Values(
-      MatMulTestParams{.colmajor = false, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
-      MatMulTestParams{.colmajor = false, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
-      MatMulTestParams{.colmajor = false, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
-      MatMulTestParams{.colmajor = false, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
-      MatMulTestParams{.colmajor = false, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
-      MatMulTestParams{.colmajor = false, .m = 12, .n = 124, .k = 257, .tol = 1e-4},
-      MatMulTestParams{.colmajor = true, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
-      MatMulTestParams{.colmajor = true, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
-      MatMulTestParams{.colmajor = true, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
-      MatMulTestParams{.colmajor = true, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
-      MatMulTestParams{.colmajor = true, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
-      MatMulTestParams{.colmajor = true, .m = 12, .n = 124, .k = 257, .tol = 1e-4}
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 12, .n = 124, .k = 257, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
+      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 12, .n = 124, .k = 257, .tol = 1e-4}
     )
 );
 // clang-format on
