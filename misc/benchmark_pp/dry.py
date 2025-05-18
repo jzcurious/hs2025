@@ -15,10 +15,8 @@ def parse_complexity(path_to_result: Path) -> dict:
 
     def parse_benchmark_and_size(x: str):
         tokens = x.split("/")
-        i = 0
-        if not tokens[1].isdigit():
-            i += 1
-        return tokens[i], tokens[i + 1]
+        i = 0 if tokens[1].isdigit() else 1
+        return tokens[i], int(tokens[i + 1])
 
     df = pd.DataFrame(data["benchmarks"])
     df["benchmark"] = df["name"].apply(lambda x: parse_benchmark_and_size(x)[0])
