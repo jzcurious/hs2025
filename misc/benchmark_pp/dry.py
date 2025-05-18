@@ -13,9 +13,16 @@ def parse_complexity(path_to_result: Path) -> dict:
     with open(path_to_result, "r") as f:
         data = json.load(f)
 
+    def parse_benchmark_and_size(x: str):
+        tokens = x.split("/")
+        i = 0
+        if not tokens[1].isdigit():
+            i += 1
+        return tokens[i], tokens[i + 1]
+
     df = pd.DataFrame(data["benchmarks"])
-    df["benchmark"] = df["name"].apply(lambda x: x.split("/")[0])
-    df["size"] = df["name"].apply(lambda x: int(x.split("/")[1]))
+    df["benchmark"] = df["name"].apply(lambda x: parse_benchmark_and_size(x)[0])
+    df["size"] = df["name"].apply(lambda x: parse_benchmark_and_size(x)[1])
 
     complexity = {}
 
