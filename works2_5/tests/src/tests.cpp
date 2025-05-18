@@ -7,12 +7,24 @@
 #include <cstdint>
 #include <gtest/gtest.h>
 
+#include <format>
+#include <string>
+
 struct MatMulTestParams {
   bool colmajor;
   std::uint32_t m;
   std::uint32_t n;
   std::uint32_t k;
   float tol;
+
+  operator std::string() const {
+    return std::format("{}, m = {}, n = {}, k = {}, tolerance = {}",
+        colmajor ? "col-major" : "row-major",
+        m,
+        n,
+        k,
+        tol);
+  }
 };
 
 class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
@@ -86,7 +98,10 @@ INSTANTIATE_TEST_SUITE_P(
       MatMulTestParams{.colmajor = true, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
       MatMulTestParams{.colmajor = true, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
       MatMulTestParams{.colmajor = true, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
-      MatMulTestParams{.colmajor = true, .m = 12, .n = 124, .k = 257, .tol = 1e-4}
+      MatMulTestParams{.colmajor = true, .m = 12, .n = 124, .k = 257, .tol = 1e-4},
+      [](const testing::TestParamInfo<MatMulTestParams>& info) {
+          return static_cast<std::string>(info.param);
+      }
     )
 );
 // clang-format on
