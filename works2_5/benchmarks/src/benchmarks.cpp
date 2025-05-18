@@ -74,8 +74,8 @@ static void BM_MatMulCPU(benchmark::State& state) {
   }
 }
 
-constexpr const int multiplier = 8;
-constexpr const auto range = std::make_pair(8, 1 << 26);
+constexpr const int multiplier = 2;
+constexpr const auto range = std::make_pair(8, 1 << 10);
 constexpr const auto unit = benchmark::kMillisecond;
 
 BENCHMARK(BM_MatMulCPU)

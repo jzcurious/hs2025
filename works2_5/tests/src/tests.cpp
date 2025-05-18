@@ -63,7 +63,7 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
 };
 
 TEST_P(MatMulTest, matmul_test) {
-  EXPECT_TRUE(true);
+  EXPECT_TRUE(matmul_test_(GetParam()));
 }
 
 // clang-format off
