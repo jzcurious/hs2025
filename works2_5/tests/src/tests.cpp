@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 
 struct MatMulTestParams {
+  bool colmajor;
   std::uint32_t m;
   std::uint32_t n;
   std::uint32_t k;
@@ -15,13 +16,38 @@ struct MatMulTestParams {
 };
 
 class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
+ private:
+  template <class EigenMatrix>
+  bool matmul_test_template_(const MatMulTestParams& params) {
+    auto [colmajor, m, n, k, tol] = params;
+
+    EigenMatrix h_a = EigenMatrix::Random(m, k);
+    EigenMatrix h_b = EigenMatrix::Random(k, n);
+    EigenMatrix h_c = h_a * h_b;
+
+    auto d_a = MatrixView<float>(_d_a, m, k, colmajor);
+    auto d_b = MatrixView<float>(_d_b, k, n, colmajor);
+    auto d_c = MatrixView<float>(_d_c, m, n, colmajor);
+
+    cudaMemcpy(_d_a, h_a.data(), h_a.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(_d_b, h_b.data(), h_b.size() * sizeof(float), cudaMemcpyHostToDevice);
+
+    w2::matmul(d_a, d_b, d_c);
+
+    EigenMatrix hd_c = EigenMatrix(m, n);
+    cudaMemcpy(
+        hd_c.data(), d_c.data(), hd_c.size() * sizeof(float), cudaMemcpyDeviceToHost);
+
+    return h_c.isApprox(hd_c, tol);
+  }
+
  protected:
   float* _d_a = nullptr;
   float* _d_b = nullptr;
   float* _d_c = nullptr;
 
   void SetUp() override {
-    auto [m, n, k, _] = GetParam();
+    auto [_, m, n, k, __] = GetParam();
     cudaMalloc(&_d_a, sizeof(float) * m * k);
     cudaMalloc(&_d_b, sizeof(float) * k * n);
     cudaMalloc(&_d_c, sizeof(float) * m * n);
@@ -33,27 +59,10 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
     if (_d_c) cudaFree(_d_c);
   }
 
-  bool matmul_test_(MatMulTestParams params) {
-    auto [m, n, k, tol] = params;
-
-    Eigen::MatrixXf h_a = Eigen::MatrixXf::Random(m, k);
-    Eigen::MatrixXf h_b = Eigen::MatrixXf::Random(k, n);
-    Eigen::MatrixXf h_c = h_a * h_b;
-
-    auto d_a = MatrixView<float>(_d_a, m, k);
-    auto d_b = MatrixView<float>(_d_b, k, n);
-    auto d_c = MatrixView<float>(_d_c, m, n);
-
-    cudaMemcpy(_d_a, h_a.data(), h_a.size() * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(_d_b, h_b.data(), h_b.size() * sizeof(float), cudaMemcpyHostToDevice);
-
-    w2::matmul(d_a, d_b, d_c);
-
-    Eigen::MatrixXf hd_c = Eigen::MatrixXf(m, n);
-    cudaMemcpy(
-        hd_c.data(), d_c.data(), hd_c.size() * sizeof(float), cudaMemcpyDeviceToHost);
-
-    return h_c.isApprox(hd_c, tol);
+  bool matmul_test_(const MatMulTestParams& params) {
+    if (params.colmajor) return matmul_test_template_<Eigen::MatrixXf>(params);
+    return matmul_test_template_<
+        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(params);
   }
 };
 
@@ -66,12 +75,18 @@ INSTANTIATE_TEST_SUITE_P(
     MatMulTests,
     MatMulTest,
     ::testing::Values(
-      MatMulTestParams{1, 1, 1, 1e-5},
-      MatMulTestParams{2, 5, 4, 1e-5},
-      MatMulTestParams{24, 54, 44, 1e-4},
-      MatMulTestParams{128, 54, 127, 1e-4},
-      MatMulTestParams{512, 124, 32, 1e-4},
-      MatMulTestParams{12, 124, 257, 1e-4}
+      MatMulTestParams{.colmajor = false, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
+      MatMulTestParams{.colmajor = false, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
+      MatMulTestParams{.colmajor = false, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
+      MatMulTestParams{.colmajor = false, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
+      MatMulTestParams{.colmajor = false, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
+      MatMulTestParams{.colmajor = false, .m = 12, .n = 124, .k = 257, .tol = 1e-4},
+      MatMulTestParams{.colmajor = true, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
+      MatMulTestParams{.colmajor = true, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
+      MatMulTestParams{.colmajor = true, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
+      MatMulTestParams{.colmajor = true, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
+      MatMulTestParams{.colmajor = true, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
+      MatMulTestParams{.colmajor = true, .m = 12, .n = 124, .k = 257, .tol = 1e-4}
     )
 );
 // clang-format on
