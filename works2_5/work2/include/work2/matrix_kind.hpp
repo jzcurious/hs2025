@@ -4,6 +4,6 @@
 #include <concepts>  // IWYU pragma: keep
 
 template <class T>
-concept MatrixKind = requires { (typename T::matrix_feature{}); };
+concept MatrixKind = requires { typename T::matrix_feature; };
 
 #endif  // _MATRIX_KIND_HPP_
