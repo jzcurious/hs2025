@@ -4,7 +4,6 @@ CUDATimer::CUDATimer(float& elapse_time_s)
     : _elapse_time_s(elapse_time_s) {
   cudaEventCreate(&_start);
   cudaEventCreate(&_stop);
-
   cudaEventRecord(_start);
 }
 

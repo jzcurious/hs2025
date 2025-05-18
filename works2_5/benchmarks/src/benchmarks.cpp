@@ -1,8 +1,8 @@
+#include <cuda_runtime.h>
+
 #include "cuda_timer.hpp"
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
-
-// #define EIGEN_NO_CUDA 1
 
 #include <Eigen/Dense>
 #include <benchmark/benchmark.h>

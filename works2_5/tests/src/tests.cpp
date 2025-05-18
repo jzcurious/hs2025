@@ -1,3 +1,5 @@
+#include <cuda_runtime.h>
+
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
 
@@ -5,12 +7,11 @@
 
 #include <Eigen/Dense>
 #include <cstdint>
-#include <cuda_runtime.h>
 #include <gtest/gtest.h>
 
-#ifdef __CLANGD__
-void* operator new(std::size_t size);
-#endif
+// #ifdef __CLANGD__
+// void* operator new(std::size_t size);
+// #endif
 
 struct MatMulTestParams {
   std::uint32_t m;
