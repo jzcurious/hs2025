@@ -82,14 +82,14 @@ def make_default_argparser():
     argparser.add_argument(
         "--xlog",
         action="store_true",
-        default=True,
+        default=False,
         help="Log scale on X axis",
     )
 
     argparser.add_argument(
         "--ylog",
         action="store_true",
-        default=True,
+        default=False,
         help="Log scale on Y axis",
     )
 
