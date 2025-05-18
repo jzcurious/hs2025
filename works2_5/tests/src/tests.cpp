@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <gtest/gtest.h>
 
-#include <format>
+// #include <format>
 #include <string>
 
 struct MatMulTestParams {
@@ -17,13 +17,21 @@ struct MatMulTestParams {
   std::uint32_t k;
   float tol;
 
+  // operator std::string() const {
+  //   return std::format("{}, m = {}, n = {}, k = {}, tolerance = {}",
+  //       colmajor ? "col-major" : "row-major",
+  //       m,
+  //       n,
+  //       k,
+  //       tol);
+  // }
+
   operator std::string() const {
-    return std::format("{}, m = {}, n = {}, k = {}, tolerance = {}",
-        colmajor ? "col-major" : "row-major",
-        m,
-        n,
-        k,
-        tol);
+    std::stringstream ss;
+    ss << (colmajor ? "col-major, m = " : "row-major, m = ") << std::to_string(m)
+       << ", n = " << std::to_string(n) << ", k = " << std::to_string(k)
+       << ", tol = " << std::to_string(tol);
+    return ss.str();
   }
 };
 
