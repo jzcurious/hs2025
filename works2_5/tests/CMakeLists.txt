@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.24)
 project(work2-5-tests LANGUAGES CXX CUDA)
 
 set(CMAKE_CUDA_ARCHITECTURES native)
-
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES OFF)
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_OBJECTS OFF)
@@ -37,8 +36,7 @@ target_compile_features(work2-5-tests PRIVATE
 
 target_compile_options(work2 PRIVATE
     -Wall -O3
-    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
-    $<$<COMPILE_LANGUAGE:CUDA>:-Wno-deprecated-gpu-targets>
+    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr -Wno-deprecated-gpu-targets -ccbin clang++>
 )
 
 target_link_libraries(work2-5-tests PRIVATE

@@ -2,7 +2,7 @@
 If:
   PathMatch: .*\.(c|h)pp
 CompileFlags:
-  Compiler: /usr/bin/clang
+  Compiler: /usr/bin/clang++
 
 ---
 
@@ -17,9 +17,10 @@ CompileFlags:
 # Tweak the clangd parse settings for all files
 CompileFlags:
   Add:
-    - "-std=c++20"
     - "--cuda-path=/opt/cuda"
     - "-ferror-limit=0"
+    - "-std=c++20"
+    - "-D__CLANGD__"
   Remove:
     - "-Xfatbin*"
     - "-gencode*"
