@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 project(work1 LANGUAGES CXX)
 
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES OFF)
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_OBJECTS OFF)
+option(ENABLE_TESTS "Enable tests" ON)
+option(ENABLE_BENCH "Enable benchmarks" ON)
 
 add_subdirectory(work1)
-add_subdirectory(tests)
-add_subdirectory(benchmarks)
+
+if(ENABLE_TESTS)
+    add_subdirectory(tests)
+endif()
+
+if(ENABLE_BENCH)
+    add_subdirectory(benchmarks)
+endif()

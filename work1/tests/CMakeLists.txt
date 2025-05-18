@@ -1,27 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 project(work1-tests LANGUAGES CXX)
 
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES OFF)
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_OBJECTS OFF)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-include(GoogleTest)
-include(FetchContent)
-
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG v1.17.0
-)
-FetchContent_MakeAvailable(googletest)
-
-FetchContent_Declare(
-  eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG 3.4.0
-)
-FetchContent_MakeAvailable(eigen)
+include(../../cmake/deps/gtest.cmake)
+include(../../cmake/deps/eigen.cmake)
 
 find_package(CUDAToolkit REQUIRED)
 

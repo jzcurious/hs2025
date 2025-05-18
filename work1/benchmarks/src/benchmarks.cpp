@@ -1,15 +1,15 @@
+#include "cuda_timer.hpp"
+#include "work1/vadd.hpp"
+
 #include <Eigen/Dense>
 #include <benchmark/benchmark.h>
 #include <cuda_runtime.h>
 
-#include "cuda_timer.hpp"
-#include "work1/vadd.hpp"
-
 static void BM_EigenVectorAddCPU(benchmark::State& state) {
-  int len = state.range(0);
+  auto len = state.range(0);
 
-  Eigen::VectorXf a = Eigen::VectorXf::Random(len);
-  Eigen::VectorXf b = Eigen::VectorXf::Random(len);
+  Eigen::VectorXf a = Eigen::VectorXf(len);
+  Eigen::VectorXf b = Eigen::VectorXf(len);
   Eigen::VectorXf result(len);
 
   for (auto _ : state) {
@@ -20,20 +20,14 @@ static void BM_EigenVectorAddCPU(benchmark::State& state) {
 }
 
 static void BM_OurVectorAddGPU(benchmark::State& state) {
-  int len = state.range(0);
-
-  Eigen::VectorXf a = Eigen::VectorXf::Random(len);
-  Eigen::VectorXf b = Eigen::VectorXf::Random(len);
+  auto len = state.range(0);
+  auto size = state.range(0) * sizeof(float);
 
   float *d_a, *d_b, *d_c;
-  auto size = len * sizeof(float);
 
   cudaMalloc(&d_a, size);
   cudaMalloc(&d_b, size);
   cudaMalloc(&d_c, size);
-
-  cudaMemcpy(d_a, a.data(), size, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_a, b.data(), size, cudaMemcpyHostToDevice);
 
   for (auto _ : state) {
     float elapsed_time = 0;
@@ -55,26 +49,28 @@ static void BM_OurVectorAddGPU(benchmark::State& state) {
 }
 
 static void BM_OurVectorAddGPUCopyOverhead(benchmark::State& state) {
-  int len = state.range(0);
-
-  Eigen::VectorXf a = Eigen::VectorXf::Random(len);
-  Eigen::VectorXf b = Eigen::VectorXf::Random(len);
+  auto len = state.range(0);
+  auto size = len * sizeof(float);
 
   float *d_a, *d_b, *d_c;
-  auto size = len * sizeof(float);
 
   cudaMalloc(&d_a, size);
   cudaMalloc(&d_b, size);
   cudaMalloc(&d_c, size);
+
+  float* h_a = new float[len];
+  float* h_b = h_a;
+  float* h_c = h_a;
 
   for (auto _ : state) {
     float elapsed_time = 0;
 
     {
       CUDATimer timer(elapsed_time);
-      cudaMemcpy(d_a, a.data(), size, cudaMemcpyHostToDevice);
-      cudaMemcpy(d_a, b.data(), size, cudaMemcpyHostToDevice);
+      cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice);
+      cudaMemcpy(d_b, h_b, size, cudaMemcpyHostToDevice);
       w1::vadd_f32(d_a, d_b, d_c, len);
+      cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost);
     }
 
     benchmark::DoNotOptimize(elapsed_time);
@@ -112,6 +108,3 @@ BENCHMARK(BM_OurVectorAddGPUCopyOverhead)
     ->UseManualTime();
 
 BENCHMARK_MAIN();
-
-// TODO: allocate vectors from pool
-// TODO: fixture

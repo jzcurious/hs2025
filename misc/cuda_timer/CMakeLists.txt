@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 project(cuda-timer LANGUAGES CXX)
 
-include(FetchContent)
-
 find_package(CUDAToolkit REQUIRED)
 
 file(GLOB_RECURSE SRC
