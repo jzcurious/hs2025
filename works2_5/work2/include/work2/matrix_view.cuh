@@ -25,7 +25,7 @@ class MatrixView final {
       : _data(view._data)
       , _mrows(view._mrows)
       , _ncols(view._ncols)
-      , _ldim(view._ncols) {}
+      , _ldim(view._ldim) {}
 
   __host__ __device__ ScalarT& operator()(std::uint32_t row, std::uint32_t col) {
     return *(_data + row * _ldim + col);
@@ -45,6 +45,10 @@ class MatrixView final {
 
   __host__ __device__ std::uint32_t size() const {
     return _ncols * _mrows;
+  }
+
+  __host__ __device__ ScalarT* data() const {
+    return _data;
   }
 };
 

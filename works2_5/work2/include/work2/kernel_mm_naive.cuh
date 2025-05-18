@@ -10,7 +10,7 @@ __global__ void kernel_mm_naive(const MatrixT a, const MatrixT b, MatrixT c) {
   std::uint32_t i = blockIdx.y * blockDim.y + threadIdx.y;
   std::uint32_t j = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i >= a.size(0) and j >= b.size(1)) return;
+  if (i >= a.size(0) or j >= b.size(1)) return;
 
   std::uint32_t k = a.size(1);
   double acc = 0;

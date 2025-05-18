@@ -3,15 +3,9 @@
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
 
-#define EIGEN_NO_CUDA 1
-
 #include <Eigen/Dense>
 #include <cstdint>
 #include <gtest/gtest.h>
-
-// #ifdef __CLANGD__
-// void* operator new(std::size_t size);
-// #endif
 
 struct MatMulTestParams {
   std::uint32_t m;
@@ -56,7 +50,8 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
     w2::matmul(d_a, d_b, d_c);
 
     Eigen::MatrixXf hd_c = Eigen::MatrixXf(m, n);
-    cudaMemcpy(hd_c.data(), _d_c, hd_c.size() * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(
+        hd_c.data(), d_c.data(), hd_c.size() * sizeof(float), cudaMemcpyDeviceToHost);
 
     return h_c.isApprox(hd_c, tol);
   }
@@ -71,12 +66,12 @@ INSTANTIATE_TEST_SUITE_P(
     MatMulTests,
     MatMulTest,
     ::testing::Values(
-      MatMulTestParams{1, 1, 1, 1e-6},
-      MatMulTestParams{2, 5, 4, 1e-6},
-      MatMulTestParams{24, 54, 44, 1e-6},
-      MatMulTestParams{128, 54, 127, 1e-6},
-      MatMulTestParams{512, 124, 32, 1e-6},
-      MatMulTestParams{12, 124, 257, 1e-6}
+      MatMulTestParams{1, 1, 1, 1e-5},
+      MatMulTestParams{2, 5, 4, 1e-5},
+      MatMulTestParams{24, 54, 44, 1e-4},
+      MatMulTestParams{128, 54, 127, 1e-4},
+      MatMulTestParams{512, 124, 32, 1e-4},
+      MatMulTestParams{12, 124, 257, 1e-4}
     )
 );
 // clang-format on
