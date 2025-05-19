@@ -25,6 +25,7 @@ target_link_libraries(work2-5-tests PRIVATE
     GTest::gtest_main
     Eigen3::Eigen
     work2
+    work3
 )
 
 enable_testing()

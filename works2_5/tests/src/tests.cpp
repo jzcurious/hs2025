@@ -2,6 +2,7 @@
 
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
+#include "work3/mm_shmem.hpp"
 
 #include <Eigen/Dense>
 #include <cstdint>
@@ -111,24 +112,75 @@ TEST_P(MatMulTest, matmul_test) {
 }
 
 const MMFunctor naive_mmfunc("naive", w2::matmul<MatrixViewT>);
+const MMFunctor shmem_mmfunc("shmem", w3::matmul<MatrixViewT>);
 
-// clang-format off
-INSTANTIATE_TEST_SUITE_P(
-    MatMulTests,
-    MatMulTest,
-    ::testing::Values(
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = false, .m = 12, .n = 124, .k = 257, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 1, .n = 1, .k = 1, .tol = 1e-5},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 2, .n = 5, .k = 4, .tol = 1e-5},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 24, .n = 54, .k = 44, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 128, .n = 54, .k = 127, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 512, .n = 124, .k = 32, .tol = 1e-4},
-      MatMulTestParams{.mmfunctor=naive_mmfunc, .colmajor = true, .m = 12, .n = 124, .k = 257, .tol = 1e-4}
-    )
-);
-// clang-format on
+#define INSTANTIATE_TEST_SUITE_MATMUL_(suite_name, func)                                 \
+  INSTANTIATE_TEST_SUITE_P(suite_name,                                                   \
+      MatMulTest,                                                                        \
+      ::testing::Values(MatMulTestParams{.mmfunctor = func,                              \
+                            .colmajor = false,                                           \
+                            .m = 1,                                                      \
+                            .n = 1,                                                      \
+                            .k = 1,                                                      \
+                            .tol = 1e-5},                                                \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = false,                                                         \
+              .m = 2,                                                                    \
+              .n = 5,                                                                    \
+              .k = 4,                                                                    \
+              .tol = 1e-5},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = false,                                                         \
+              .m = 24,                                                                   \
+              .n = 54,                                                                   \
+              .k = 44,                                                                   \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = false,                                                         \
+              .m = 128,                                                                  \
+              .n = 54,                                                                   \
+              .k = 127,                                                                  \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = false,                                                         \
+              .m = 512,                                                                  \
+              .n = 124,                                                                  \
+              .k = 32,                                                                   \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = false,                                                         \
+              .m = 12,                                                                   \
+              .n = 124,                                                                  \
+              .k = 257,                                                                  \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{                                                              \
+              .mmfunctor = func, .colmajor = true, .m = 1, .n = 1, .k = 1, .tol = 1e-5}, \
+          MatMulTestParams{                                                              \
+              .mmfunctor = func, .colmajor = true, .m = 2, .n = 5, .k = 4, .tol = 1e-5}, \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = true,                                                          \
+              .m = 24,                                                                   \
+              .n = 54,                                                                   \
+              .k = 44,                                                                   \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = true,                                                          \
+              .m = 128,                                                                  \
+              .n = 54,                                                                   \
+              .k = 127,                                                                  \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = true,                                                          \
+              .m = 512,                                                                  \
+              .n = 124,                                                                  \
+              .k = 32,                                                                   \
+              .tol = 1e-4},                                                              \
+          MatMulTestParams{.mmfunctor = func,                                            \
+              .colmajor = true,                                                          \
+              .m = 12,                                                                   \
+              .n = 124,                                                                  \
+              .k = 257,                                                                  \
+              .tol = 1e-4}));
+
+INSTANTIATE_TEST_SUITE_MATMUL_(MatMulTestsNaive, naive_mmfunc);
+INSTANTIATE_TEST_SUITE_MATMUL_(MatMulTestsShmem, shmem_mmfunc);

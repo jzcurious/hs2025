@@ -7,8 +7,8 @@
 
 template <MatrixKind MatrixT>
 void w3::matmul(const MatrixT& a, const MatrixT& b, MatrixT& c) {
-  constexpr std::uint32_t tile_side_len = 16;
-  constexpr dim3 block_size = {tile_side_len, tile_side_len};
+  constexpr const std::uint32_t tile_side_len = 16;
+  constexpr const dim3 block_size = {tile_side_len, tile_side_len};
 
   const dim3 grid_size = {
       heuristic::cover(b.size(1), block_size.x),
