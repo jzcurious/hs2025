@@ -4,6 +4,8 @@
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
 
+#include "work3/mm_shmem.hpp"
+
 #include <Eigen/Dense>
 #include <benchmark/benchmark.h>
 #include <cuda_runtime.h>
@@ -100,5 +102,6 @@ BENCHMARK(BM_MatMulCPU)
       ->UseManualTime();
 
 BENCHMARK_DEFINE_AND_REGISTER_F_GPU_(BM_MatMulGPUNaive, w2::matmul);
+BENCHMARK_DEFINE_AND_REGISTER_F_GPU_(BM_MatMulGPUShmem, w3::matmul);
 
 BENCHMARK_MAIN();

@@ -26,4 +26,5 @@ target_link_libraries(works2-5-benchmarks PRIVATE
     benchmark::benchmark
     Eigen3::Eigen
     work2
+    work3
 )
