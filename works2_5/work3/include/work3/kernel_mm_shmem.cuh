@@ -16,19 +16,15 @@ __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
   const std::uint32_t i = tile_side_len * blockIdx.y + threadIdx.y;
   const std::uint32_t j = tile_side_len * blockIdx.x + threadIdx.x;
 
-  const std::uint32_t mrows = a.size(0);
-  const std::uint32_t ncols = b.size(1);
-
-  if (i >= mrows or j >= ncols) return;
+  std::uint32_t tx = threadIdx.x;
+  std::uint32_t ty = threadIdx.y;
 
   double acc = 0;
+  std::uint32_t k = a.size(1);
 
-  for (std::uint32_t v = 0; v < a.size(1); v += tile_side_len) {
-    std::uint32_t tx = threadIdx.x;
-    std::uint32_t ty = threadIdx.y;
-
-    tile_a[ty][tx] = (v + tx < ncols) ? a(i, v + tx) : 0;
-    tile_b[ty][tx] = (v + ty < mrows) ? b(v + ty, j) : 0;
+  for (std::uint32_t v = 0; v < k; v += tile_side_len) {
+    tile_a[ty][tx] = (v + tx < k) ? a(i, v + tx) : 0;
+    tile_b[ty][tx] = (v + ty < k) ? b(v + ty, j) : 0;
 
     __syncthreads();
 
@@ -39,7 +35,7 @@ __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
     __syncthreads();
   }
 
-  c(i, j) = acc;
+  if (i < a.size(0) and j < b.size(1)) c(i, j) = acc;
 }
 
 #endif  // _KERNEL_MM_SHMEM_CUH_
