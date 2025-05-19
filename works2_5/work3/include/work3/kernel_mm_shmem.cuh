@@ -27,8 +27,8 @@ __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
     std::uint32_t tx = threadIdx.x;
     std::uint32_t ty = threadIdx.y;
 
-    tile_a[ty][tx] = v + tx < ncols ? a(i, v + tx) : 0;
-    tile_b[ty][tx] = v + ty < mrows ? b(v + ty, j) : 0;
+    tile_a[ty][tx] = (v + tx < ncols) ? a(i, v + tx) : 0;
+    tile_b[ty][tx] = (v + ty < mrows) ? b(v + ty, j) : 0;
 
     __syncthreads();
 
