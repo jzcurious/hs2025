@@ -19,6 +19,8 @@ class MatrixView final {
   std::uint32_t _ldim;
 
  public:
+  using scalar_t = ScalarT;
+
   struct matrix_feature {};
 
   const bool colmajor;
