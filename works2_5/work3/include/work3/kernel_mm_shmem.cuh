@@ -2,7 +2,6 @@
 #define _KERNEL_MM_SHMEM_CUH_
 
 #include "work2/matrix_kind.hpp"
-#include "work2/matrix_kind.hpp"  // IWYU pragma: keep
 
 #include <cstdint>
 

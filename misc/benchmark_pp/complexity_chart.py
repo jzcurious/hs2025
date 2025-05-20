@@ -40,6 +40,7 @@ def make_complexity_chart(
         template="plotly_dark" if dark else "plotly_white",
         width=width,
         height=height,
+        autosize=False,
     )
 
     fig.write_html(path_to_chart)

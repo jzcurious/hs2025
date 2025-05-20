@@ -71,6 +71,10 @@ class MatrixView final {
   __host__ __device__ ScalarT* data() const {
     return _data;
   }
+
+  __host__ __device__ std::uint32_t ldim() const {
+    return _ldim;
+  }
 };
 
 #endif  // _MATRIX_VIEW_CUH_

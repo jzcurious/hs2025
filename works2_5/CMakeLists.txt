@@ -6,6 +6,7 @@ option(ENABLE_BENCH "Enable benchmarks" ON)
 
 add_subdirectory(work2)
 add_subdirectory(work3)
+add_subdirectory(work4)
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)
