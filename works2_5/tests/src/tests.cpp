@@ -11,25 +11,25 @@
 #include <functional>
 #include <string>
 
-using MatrixViewT = MatrixView<float>;
-
-using OpMatMulT
-    = std::function<void(const MatrixViewT&, const MatrixViewT&, MatrixViewT&)>;
-
+template <ScalarKind ScalarT>
 class MMFunctor {
  public:
+  using opmm_t = std::function<void(
+      const MatrixView<ScalarT>&, const MatrixView<ScalarT>&, MatrixView<ScalarT>&)>;
+
   const std::string label;
 
  private:
-  OpMatMulT _opmm;
+  opmm_t _opmm;
 
  public:
-  MMFunctor(const char* label, OpMatMulT opmm)
+  MMFunctor(const char* label, MMFunctor::opmm_t opmm)
       : label(label)
       , _opmm(opmm) {}
 
-  MatrixViewT& operator()(
-      const MatrixViewT& a, const MatrixViewT& b, MatrixViewT& c) const {
+  MatrixView<ScalarT>& operator()(const MatrixView<ScalarT>& a,
+      const MatrixView<ScalarT>& b,
+      MatrixView<ScalarT>& c) const {
     _opmm(a, b, c);
     return c;
   }
@@ -43,45 +43,55 @@ class MMFunctor {
   }
 };
 
-using MatMulTestParams
-    = std::tuple<MMFunctor, bool, std::uint32_t, std::uint32_t, std::uint32_t, float>;
+template <ScalarKind ScalarT>
+using MatMulTestParams = std::
+    tuple<MMFunctor<ScalarT>, bool, std::uint32_t, std::uint32_t, std::uint32_t, float>;
 
-class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
+template <ScalarKind ScalarT>
+class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
  private:
+  using mview_t = MatrixView<ScalarT>;
+
   template <class EigenMatrix>
-  bool matmul_test_template_(const MatMulTestParams& params) {
+  bool matmul_test_template_(const MatMulTestParams<ScalarT>& params) {
     auto [mmfunc, colmajor, m, n, k, tol] = params;
 
     EigenMatrix h_a = EigenMatrix::Random(m, k);
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = MatrixViewT(_d_a, m, k, colmajor);
-    auto d_b = MatrixViewT(_d_b, k, n, colmajor);
-    auto d_c = MatrixViewT(_d_c, m, n, colmajor);
+    auto d_a = mview_t(_d_a, m, k, colmajor);
+    auto d_b = mview_t(_d_b, k, n, colmajor);
+    auto d_c = mview_t(_d_c, m, n, colmajor);
 
-    cudaMemcpy(_d_a, h_a.data(), h_a.size() * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(_d_b, h_b.data(), h_b.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(_d_a, h_a.data(), h_a.size() * sizeof(ScalarT), cudaMemcpyHostToDevice);
+    cudaMemcpy(_d_b, h_b.data(), h_b.size() * sizeof(ScalarT), cudaMemcpyHostToDevice);
 
     mmfunc(d_a, d_b, d_c);
 
     EigenMatrix hd_c = EigenMatrix(m, n);
     cudaMemcpy(
-        hd_c.data(), d_c.data(), hd_c.size() * sizeof(float), cudaMemcpyDeviceToHost);
+        hd_c.data(), d_c.data(), hd_c.size() * sizeof(ScalarT), cudaMemcpyDeviceToHost);
 
-    return h_c.isApprox(hd_c, tol);
+    if constexpr (std::is_same_v<ScalarT, half>) {
+      auto hd_c_float = hd_c.template cast<float>();
+      auto h_c_float = h_c.template cast<float>();
+      return h_c_float.isApprox(hd_c_float, tol);
+    } else {
+      return h_c.isApprox(hd_c, tol);
+    }
   }
 
  protected:
-  float* _d_a = nullptr;
-  float* _d_b = nullptr;
-  float* _d_c = nullptr;
+  ScalarT* _d_a = nullptr;
+  ScalarT* _d_b = nullptr;
+  ScalarT* _d_c = nullptr;
 
   void SetUp() override {
-    auto [_1, _2, m, n, k, _3] = GetParam();
-    cudaMalloc(&_d_a, sizeof(float) * m * k);
-    cudaMalloc(&_d_b, sizeof(float) * k * n);
-    cudaMalloc(&_d_c, sizeof(float) * m * n);
+    auto [_1, _2, m, n, k, _3] = this->GetParam();
+    cudaMalloc(&_d_a, sizeof(ScalarT) * m * k);
+    cudaMalloc(&_d_b, sizeof(ScalarT) * k * n);
+    cudaMalloc(&_d_c, sizeof(ScalarT) * m * n);
   }
 
   void TearDown() override {
@@ -90,26 +100,45 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
     if (_d_c) cudaFree(_d_c);
   }
 
-  bool matmul_test_(const MatMulTestParams& params) {
+  bool matmul_test_(const MatMulTestParams<ScalarT>& params) {
+    using eigen_scalar_t
+        = std::conditional_t<std::is_same_v<ScalarT, half>, Eigen::half, ScalarT>;
+
     auto colmajor = std::get<1>(params);
-    if (colmajor) return matmul_test_template_<Eigen::MatrixXf>(params);
+
+    if (colmajor)
+      return matmul_test_template_<
+          Eigen::Matrix<eigen_scalar_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(
+          params);
+
     return matmul_test_template_<
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(params);
+        Eigen::Matrix<eigen_scalar_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
+        params);
   }
 };
 
-TEST_P(MatMulTest, matmul_test) {
-  EXPECT_TRUE(matmul_test_(GetParam()));
-}
+#define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_label, impl_template, scalar_type, tol)     \
+  using MatmulTest_##impl_label##_##scalar_type = MatMulTest<scalar_type>;               \
+  TEST_P(MatmulTest_##impl_label##_##scalar_type, matmul_test_##scalar_type) {           \
+    EXPECT_TRUE(matmul_test_(this->GetParam()));                                         \
+  }                                                                                      \
+  const MMFunctor<scalar_type> impl_label##_##func_##scalar_type(                        \
+      #impl_label, impl_template<MatrixView<scalar_type>>);                              \
+  INSTANTIATE_TEST_SUITE_P(MMTests,                                                      \
+      MatmulTest_##impl_label##_##scalar_type,                                           \
+      ::testing::Combine(::testing::Values(impl_label##_##func_##scalar_type),           \
+          ::testing::Bool(),                                                             \
+          ::testing::Values(1, 2, 24, 128, 263),                                         \
+          ::testing::Values(1, 3, 37, 120, 124),                                         \
+          ::testing::Values(1, 4, 35, 121, 257),                                         \
+          ::testing::Values(1e-5)));
 
-const MMFunctor naive_mmfunc("naive", w2::matmul<MatrixViewT>);
-const MMFunctor shmem_mmfunc("shmem", w3::matmul<MatrixViewT>);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, float, 1e-5);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, double, 1e-5);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, half, 1e-3);
 
-INSTANTIATE_TEST_SUITE_P(MMTests,
-    MatMulTest,
-    ::testing::Combine(::testing::Values(naive_mmfunc, shmem_mmfunc),
-        ::testing::Bool(),
-        ::testing::Values(1, 2, 24, 128, 512),
-        ::testing::Values(1, 3, 37, 120, 124),
-        ::testing::Values(1, 4, 35, 121, 257),
-        ::testing::Values(1e-5)));
+INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, float, 1e-5);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, double, 1e-5);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, half, 1e-3);
+
+// TODO: add human readable test names
