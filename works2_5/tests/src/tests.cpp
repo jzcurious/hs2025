@@ -33,28 +33,18 @@ class MMFunctor {
     _opmm(a, b, c);
     return c;
   }
-};
-
-struct MatMulTestParams {
-  const MMFunctor& mmfunctor;
-
-  bool colmajor;
-  std::uint32_t m;
-  std::uint32_t n;
-  std::uint32_t k;
-  float tol;
 
   operator std::string() const {
-    std::stringstream ss;
-    ss << mmfunctor.label << (colmajor ? "_colmajor_m" : "_rowmajor_m")
-       << std::to_string(m) << "_n" << std::to_string(n) << "_k" << std::to_string(k);
-    return ss.str();
+    return label;
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const MatMulTestParams& params) {
-    return os << static_cast<std::string>(params);
+  friend std::ostream& operator<<(std::ostream& os, const MMFunctor& func) {
+    return os << static_cast<std::string>(func);
   }
 };
+
+using MatMulTestParams
+    = std::tuple<MMFunctor, bool, std::uint32_t, std::uint32_t, std::uint32_t, float>;
 
 class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
  private:
@@ -101,7 +91,8 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
   }
 
   bool matmul_test_(const MatMulTestParams& params) {
-    if (params.colmajor) return matmul_test_template_<Eigen::MatrixXf>(params);
+    auto colmajor = std::get<1>(params);
+    if (colmajor) return matmul_test_template_<Eigen::MatrixXf>(params);
     return matmul_test_template_<
         Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(params);
   }
@@ -114,26 +105,11 @@ TEST_P(MatMulTest, matmul_test) {
 const MMFunctor naive_mmfunc("naive", w2::matmul<MatrixViewT>);
 const MMFunctor shmem_mmfunc("shmem", w3::matmul<MatrixViewT>);
 
-auto make_params_cases(const MMFunctor& func, float tol) {
-  return std::vector<MatMulTestParams>{
-      {.mmfunctor = func, .colmajor = false,   .m = 1,   .n = 1,   .k = 1, .tol = tol},
-      {.mmfunctor = func, .colmajor = false,   .m = 2,   .n = 5,   .k = 4, .tol = tol},
-      {.mmfunctor = func, .colmajor = false,  .m = 24,  .n = 54,  .k = 44, .tol = tol},
-      {.mmfunctor = func, .colmajor = false, .m = 128,  .n = 54, .k = 127, .tol = tol},
-      {.mmfunctor = func, .colmajor = false, .m = 512, .n = 124,  .k = 32, .tol = tol},
-      {.mmfunctor = func, .colmajor = false,  .m = 12, .n = 124, .k = 257, .tol = tol},
-      {.mmfunctor = func,  .colmajor = true,   .m = 1,   .n = 1,   .k = 1, .tol = tol},
-      {.mmfunctor = func,  .colmajor = true,   .m = 2,   .n = 5,   .k = 4, .tol = tol},
-      {.mmfunctor = func,  .colmajor = true,  .m = 24,  .n = 54,  .k = 44, .tol = tol},
-      {.mmfunctor = func,  .colmajor = true, .m = 128,  .n = 54, .k = 127, .tol = tol},
-      {.mmfunctor = func,  .colmajor = true, .m = 512, .n = 124,  .k = 32, .tol = tol},
-      {.mmfunctor = func,  .colmajor = true,  .m = 12, .n = 124, .k = 257, .tol = tol}
-  };
-}
-
-#define INSTANTIATE_TEST_SUITE_MATMUL_(suite_name, func, atol)                           \
-  INSTANTIATE_TEST_SUITE_P(                                                              \
-      suite_name, MatMulTest, ::testing::ValuesIn(make_params_cases(func, 1e-5)));
-
-INSTANTIATE_TEST_SUITE_MATMUL_(MatMulTestsNaive, naive_mmfunc, 1e-5);
-INSTANTIATE_TEST_SUITE_MATMUL_(MatMulTestsShmem, shmem_mmfunc, 1e-5);
+INSTANTIATE_TEST_SUITE_P(MMTests,
+    MatMulTest,
+    ::testing::Combine(::testing::Values(naive_mmfunc, shmem_mmfunc),
+        ::testing::Bool(),
+        ::testing::Values(1, 2, 24, 128, 512),
+        ::testing::Values(1, 3, 37, 120, 124),
+        ::testing::Values(1, 4, 35, 121, 257),
+        ::testing::Values(1e-5)));
