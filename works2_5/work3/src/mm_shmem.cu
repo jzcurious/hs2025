@@ -1,6 +1,7 @@
 #include "cuda_grid_heuristics.hpp"
 #include "work2/matrix_kind.hpp"
 #include "work2/matrix_view.cuh"
+#include "work2/mm_dispatch.hpp"
 
 #include "work3/kernel_mm_shmem.cuh"
 #include "work3/mm_shmem.hpp"
@@ -17,5 +18,4 @@ void w3::matmul(const MatrixT& a, const MatrixT& b, MatrixT& c) {
   kernel_mm_shmem<MatrixT, block_size.x><<<grid_size, block_size>>>(a, b, c);
 }
 
-template void w3::matmul<MatrixView<float>>(
-    const MatrixView<float>& a, const MatrixView<float>& b, MatrixView<float>& c);
+MM_DISPATCH_FOR_ALL_SUPPORTED_TYPES(w3::matmul);

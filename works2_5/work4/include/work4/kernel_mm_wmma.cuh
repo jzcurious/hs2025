@@ -15,9 +15,11 @@ template <MatrixKind MatrixT,
 __global__ void kernel_mm_wmma(const MatrixT a, const MatrixT b, MatrixT c) {
   using scalar_t = typename MatrixT::scalar_t;
 
-  wmma::fragment<wmma::matrix_a, wmma_m, wmma_n, wmma_k, half, wmma::row_major> a_frag;
-  wmma::fragment<wmma::matrix_b, wmma_m, wmma_n, wmma_k, half, wmma::row_major> b_frag;
-  wmma::fragment<wmma::accumulator, wmma_m, wmma_n, wmma_k, float> c_frag;
+  wmma::fragment<wmma::matrix_a, wmma_m, wmma_n, wmma_k, scalar_t, wmma::row_major>
+      a_frag;
+  wmma::fragment<wmma::matrix_b, wmma_m, wmma_n, wmma_k, scalar_t, wmma::row_major>
+      b_frag;
+  wmma::fragment<wmma::accumulator, wmma_m, wmma_n, wmma_k, scalar_t> c_frag;
 
   wmma::fill_fragment(c_frag, 0.0f);
 

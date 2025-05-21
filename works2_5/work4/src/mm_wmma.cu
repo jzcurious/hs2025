@@ -1,6 +1,7 @@
 #include "cuda_grid_heuristics.hpp"
 #include "work2/matrix_kind.hpp"
 #include "work2/matrix_view.cuh"
+#include "work2/mm_dispatch.hpp"
 
 #include "work4/kernel_mm_wmma.cuh"
 #include "work4/mm_wmma.hpp"
@@ -17,5 +18,8 @@ void w4::matmul(const MatrixT& a, const MatrixT& b, MatrixT& c) {
   kernel_mm_wmma<MatrixT, block_size.x><<<grid_size, block_size>>>(a, b, c);
 }
 
-template void w4::matmul<MatrixView<float>>(
-    const MatrixView<float>& a, const MatrixView<float>& b, MatrixView<float>& c);
+MM_DISPATCH(w4::matmul, half);
+
+#if __CUDA_ARCH__ >= 800  // TODO: learn compute capability
+MM_DISPATCH(w4::matmul, float);
+#endif

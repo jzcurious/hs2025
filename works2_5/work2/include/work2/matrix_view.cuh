@@ -1,7 +1,8 @@
 #ifndef _MATRIX_VIEW_CUH_
 #define _MATRIX_VIEW_CUH_
 
-#include <concepts>
+#include "work2/scalar_kind.cuh"
+
 #include <cstdint>
 
 // clang-format off
@@ -10,7 +11,7 @@ struct layout {
   struct colmajor {};
 };  // clang-format on
 
-template <std::floating_point ScalarT>
+template <ScalarKind ScalarT>
 class MatrixView final {
  private:
   ScalarT* _data;

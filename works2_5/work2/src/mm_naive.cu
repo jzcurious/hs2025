@@ -1,6 +1,7 @@
 #include "cuda_grid_heuristics.hpp"
 #include "work2/kernel_mm_naive.cuh"
 #include "work2/matrix_view.cuh"
+#include "work2/mm_dispatch.hpp"
 #include "work2/mm_naive.hpp"
 
 template <MatrixKind MatrixT>
@@ -15,5 +16,4 @@ void w2::matmul(const MatrixT& a, const MatrixT& b, MatrixT& c) {
   kernel_mm_naive<<<grid_size, block_size>>>(a, b, c);
 }
 
-template void w2::matmul<MatrixView<float>>(
-    const MatrixView<float>& a, const MatrixView<float>& b, MatrixView<float>& c);
+MM_DISPATCH_FOR_ALL_SUPPORTED_TYPES(w2::matmul);

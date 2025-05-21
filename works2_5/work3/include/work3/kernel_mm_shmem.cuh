@@ -4,6 +4,7 @@
 #include "work2/matrix_kind.hpp"
 
 #include <cstdint>
+#include <cuda_fp16.h>
 
 template <MatrixKind MatrixT, std::uint32_t tile_side_len = 16>
 __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
@@ -18,12 +19,12 @@ __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
   std::uint32_t tx = threadIdx.x;
   std::uint32_t ty = threadIdx.y;
 
-  double acc = 0;
+  scalar_t acc = 0;
   std::uint32_t k = a.size(1);
 
   for (std::uint32_t v = 0; v < k; v += tile_side_len) {
-    tile_a[ty][tx] = (v + tx < k) ? a(i, v + tx) : 0;
-    tile_b[ty][tx] = (v + ty < k) ? b(v + ty, j) : 0;
+    tile_a[ty][tx] = (v + tx < k) ? a(i, v + tx) : static_cast<scalar_t>(0.0);
+    tile_b[ty][tx] = (v + ty < k) ? b(v + ty, j) : static_cast<scalar_t>(0.0);
 
     __syncthreads();
 
