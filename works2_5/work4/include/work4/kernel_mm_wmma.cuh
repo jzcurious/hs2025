@@ -32,16 +32,17 @@ __global__ void kernel_mm_wmma(const MatrixT a, const MatrixT b, MatrixT c) {
   std::uint32_t k = a.size(1);
 
   std::uint32_t laneid_x = threadIdx.x & 0x1F;
+  const scalar_t zero = 0;
 
   for (std::uint32_t v = 0; v < k; v += wmma_k) {
     if (i + wmma_m < m and v + wmma_n < n) {
       scalar_t* ptr_a = a.data() + a.ldim() * i + v;
       wmma::load_matrix_sync(fa, ptr_a, a.ldim());
     } else {
-      wmma::fill_fragment(fa, 0.0f);
       if (laneid_x < wmma_n) {
         for (std::uint32_t r = 0; r < wmma_m * wmma_n; r += wmma_n) {
-          fa.x[laneid_x + r] = a(i + r, laneid_x + v);
+          fa.x[laneid_x + r]
+              = (i + r < m) and (laneid_x + v < n) ? a(i + r, laneid_x + v) : zero;
         }
       }
     }
@@ -50,10 +51,10 @@ __global__ void kernel_mm_wmma(const MatrixT a, const MatrixT b, MatrixT c) {
       scalar_t* ptr_b = b.data() + b.ldim() * v + j;
       wmma::load_matrix_sync(fb, ptr_b, b.ldim());
     } else {
-      wmma::fill_fragment(fb, 0.0f);
       if (laneid_x < wmma_n) {
         for (std::uint32_t r = 0; r < wmma_m * wmma_n; r += wmma_n) {
-          fb.x[laneid_x + r] = b(laneid_x + v, j + r);
+          fb.x[laneid_x + r]
+              = (j + r < n) and (laneid_x + v < m) ? b(laneid_x + v, j + r) : zero;
         }
       }
     }
