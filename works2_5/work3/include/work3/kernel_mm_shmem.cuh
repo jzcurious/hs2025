@@ -19,12 +19,16 @@ __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
   std::uint32_t tx = threadIdx.x;
   std::uint32_t ty = threadIdx.y;
 
-  scalar_t acc = 0;
+  std::uint32_t m = a.size(0);
+  std::uint32_t n = b.size(1);
   std::uint32_t k = a.size(1);
 
+  const scalar_t zero = 0;
+  scalar_t acc = zero;
+
   for (std::uint32_t v = 0; v < k; v += tile_side_len) {
-    tile_a[ty][tx] = (v + tx < k) ? a(i, v + tx) : static_cast<scalar_t>(0.0);
-    tile_b[ty][tx] = (v + ty < k) ? b(v + ty, j) : static_cast<scalar_t>(0.0);
+    tile_a[ty][tx] = (v + tx < k) and (i < m) ? a(i, v + tx) : zero;
+    tile_b[ty][tx] = (v + ty < k) and (j < n) ? b(v + ty, j) : zero;
 
     __syncthreads();
 
@@ -35,7 +39,7 @@ __global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
     __syncthreads();
   }
 
-  if (i < a.size(0) and j < b.size(1)) c(i, j) = acc;
+  if (i < m and j < n) c(i, j) = acc;
 }
 
 #endif  // _KERNEL_MM_SHMEM_CUH_

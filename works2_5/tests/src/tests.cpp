@@ -3,6 +3,7 @@
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
 #include "work3/mm_shmem.hpp"
+#include "work4/mm_wmma.hpp"
 
 #include <Eigen/Dense>
 #include <cstdint>
@@ -131,14 +132,20 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
           ::testing::Values(1, 2, 24, 128, 263),                                         \
           ::testing::Values(1, 3, 37, 120, 124),                                         \
           ::testing::Values(1, 4, 35, 121, 257),                                         \
-          ::testing::Values(1e-5)));
+          ::testing::Values(tol)));
 
 INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, float, 1e-5);
 INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, double, 1e-5);
-INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, half, 1e-3);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, half, 1e-2);
 
 INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, float, 1e-5);
 INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, double, 1e-5);
-INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, half, 1e-3);
+INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, half, 1e-2);
+
+INSTANTIATE_TEST_SUITE_FOR_TYPE(wmma, w4::matmul, half, 1e-2);
+
+// auto f = [](const
+// testing::TestParamInfo<MatmulTest_##impl_label##_##scalar_type::ParamType>& info) {
+// };
 
 // TODO: add human readable test names

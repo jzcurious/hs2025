@@ -26,6 +26,7 @@ target_link_libraries(work2-5-tests PRIVATE
     Eigen3::Eigen
     work2
     work3
+    work4
 )
 
 enable_testing()
