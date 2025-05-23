@@ -49,14 +49,6 @@ class MatrixView final {
       , _ldim(view._ldim)
       , colmajor(view.colmajor) {}
 
-  __host__ __device__ ScalarT& operator()(std::uint32_t row, std::uint32_t col) {
-    return *(_data + (colmajor ? col * _ldim + row : row * _ldim + col));
-  }
-
-  __host__ __device__ ScalarT operator()(std::uint32_t row, std::uint32_t col) const {
-    return *(_data + (colmajor ? col * _ldim + row : row * _ldim + col));
-  }
-
   __host__ __device__ void transpose() {
     std::swap(_mrows, _ncols);
   }
@@ -71,6 +63,18 @@ class MatrixView final {
 
   __host__ __device__ ScalarT* data() const {
     return _data;
+  }
+
+  __host__ __device__ ScalarT* data(std::uint32_t row, std::uint32_t col) const {
+    return _data + (colmajor ? col * _ldim + row : row * _ldim + col);
+  }
+
+  __host__ __device__ ScalarT& operator()(std::uint32_t row, std::uint32_t col) {
+    return *(data(row, col));
+  }
+
+  __host__ __device__ ScalarT operator()(std::uint32_t row, std::uint32_t col) const {
+    return *(data(row, col));
   }
 
   __host__ __device__ std::uint32_t ldim() const {
