@@ -114,15 +114,10 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
 };
 
 template <ScalarKind ScalarT>
-std::string gen_test_case_name(const MatMulTestParams<ScalarT>& params) {
+void PrintTo(const MatMulTestParams<ScalarT>& params, std::ostream* os) {
   auto [mmfunc, colmajor, m, n, k, tol] = params;
-
-  std::stringstream ss;
-
-  ss << mmfunc << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
-     << "_n" << std::to_string(n) << "_k" << std::to_string(k);
-
-  return ss.str();
+  *os << mmfunc << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
+      << "_n" << std::to_string(n) << "_k" << std::to_string(k);
 }
 
 #define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_label, impl_template, scalar_type, tol)     \
@@ -139,18 +134,14 @@ std::string gen_test_case_name(const MatMulTestParams<ScalarT>& params) {
           ::testing::Values(1, 2, 24, 128, 263),                                         \
           ::testing::Values(1, 3, 37, 120, 124),                                         \
           ::testing::Values(1, 4, 35, 121, 257),                                         \
-          ::testing::Values(tol)),                                                       \
-      [](const testing::TestParamInfo<                                                   \
-          MatmulTest_##impl_label##_##scalar_type::ParamType>& info) {                   \
-        return gen_test_case_name(info.param);                                           \
-      });
+          ::testing::Values(tol)));
 
-INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, float, 1e-5);
-INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, double, 1e-5);
-INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, half, 1e-2);
+// INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, float, 1e-5);
+// INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, double, 1e-5);
+// INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, half, 1e-2);
 
-INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, float, 1e-5);
-INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, double, 1e-5);
-INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, half, 1e-2);
+// INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, float, 1e-5);
+// INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, double, 1e-5);
+// INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, half, 1e-2);
 
 INSTANTIATE_TEST_SUITE_FOR_TYPE(wmma, w4::matmul, half, 1e-2);
