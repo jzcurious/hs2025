@@ -18,7 +18,13 @@ void w4::matmul(const MatrixT& a, const MatrixT& b, MatrixT& c) {
       heuristic::cover(a.size(0), wmma_size.y),
   };
 
-  kernel_mm_wmma<MatrixT, wmma_size.x, wmma_size.y, wmma_size.z>
+  if (a.colmajor) {
+    kernel_mm_wmma<MatrixT, wmma_size.x, wmma_size.y, wmma_size.z, true>
+        <<<grid_size, block_size>>>(a, b, c);
+    return;
+  }
+
+  kernel_mm_wmma<MatrixT, wmma_size.x, wmma_size.y, wmma_size.z, false>
       <<<grid_size, block_size>>>(a, b, c);
 }
 
