@@ -29,8 +29,6 @@ __global__ void kernel_mm_wmma(const MatrixT a, const MatrixT b, MatrixT c) {
 
   std::uint32_t k = a.size(1);
 
-  const scalar_t zero = 0;
-
   for (std::uint32_t v = 0; v < k; v += wmma_k) {
     wmma::load_matrix_sync(fa, a.data(i, v), a.ldim());
     wmma::load_matrix_sync(fb, b.data(v, j), b.ldim());
