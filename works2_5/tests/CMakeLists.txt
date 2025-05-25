@@ -24,6 +24,7 @@ target_link_libraries(work2-5-tests PRIVATE
     CUDA::cudart
     GTest::gtest_main
     Eigen3::Eigen
+    cuda-grid-heuristics
     work2
     work3
     work4

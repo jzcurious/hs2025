@@ -18,6 +18,8 @@ class MatrixView final {
   std::uint32_t _mrows;
   std::uint32_t _ncols;
   std::uint32_t _ldim;
+  std::uint32_t _row_pad;
+  std::uint32_t _col_pad;
 
  public:
   using scalar_t = ScalarT;
@@ -26,31 +28,48 @@ class MatrixView final {
 
   const bool colmajor;
 
-  __host__ __device__ MatrixView(
-      ScalarT* data, std::uint32_t mrows, std::uint32_t ncols, bool colmajor = false)
+  __host__ __device__ MatrixView(ScalarT* data,
+      std::uint32_t mrows,
+      std::uint32_t ncols,
+      bool colmajor = false,
+      std::uint32_t row_pad = 0,
+      std::uint32_t col_pad = 0)
       : _data(data)
       , _mrows(mrows)
       , _ncols(ncols)
-      , _ldim(colmajor ? mrows : ncols)
+      , _ldim(colmajor ? mrows + row_pad : ncols + col_pad)
+      , _row_pad(row_pad)
+      , _col_pad(col_pad)
       , colmajor(colmajor) {}
 
-  __host__ __device__ MatrixView(
-      ScalarT* data, std::uint32_t mrows, std::uint32_t ncols, layout::rowmajor)
-      : MatrixView(data, mrows, ncols, false) {}
+  __host__ __device__ MatrixView(ScalarT* data,
+      std::uint32_t mrows,
+      std::uint32_t ncols,
+      layout::rowmajor,
+      std::uint32_t row_pad = 0,
+      std::uint32_t col_pad = 0)
+      : MatrixView(data, mrows, ncols, false, row_pad, col_pad) {}
 
-  __host__ __device__ MatrixView(
-      ScalarT* data, std::uint32_t mrows, std::uint32_t ncols, layout::colmajor)
-      : MatrixView(data, mrows, ncols, true) {}
+  __host__ __device__ MatrixView(ScalarT* data,
+      std::uint32_t mrows,
+      std::uint32_t ncols,
+      layout::colmajor,
+      std::uint32_t row_pad = 0,
+      std::uint32_t col_pad = 0)
+      : MatrixView(data, mrows, ncols, true, row_pad, col_pad) {}
 
   __host__ __device__ MatrixView(const MatrixView& view)
       : _data(view._data)
       , _mrows(view._mrows)
       , _ncols(view._ncols)
       , _ldim(view._ldim)
+      , _row_pad(view._row_pad)
+      , _col_pad(view._col_pad)
       , colmajor(view.colmajor) {}
 
   __host__ __device__ void transpose() {
     std::swap(_mrows, _ncols);
+    std::swap(_row_pad, _col_pad);
   }
 
   __host__ __device__ std::uint32_t size(std::uint8_t axis) const {
@@ -59,6 +78,10 @@ class MatrixView final {
 
   __host__ __device__ std::uint32_t size() const {
     return _ncols * _mrows;
+  }
+
+  __host__ __device__ std::uint32_t pad(std::uint8_t axis) const {
+    return axis ? _col_pad : _row_pad;
   }
 
   __host__ __device__ ScalarT* data() const {

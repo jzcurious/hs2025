@@ -1,5 +1,7 @@
 #include <cuda_runtime.h>
 
+#include "cuda_grid_heuristics.hpp"
+#include "work2/continuous_block.cuh"
 #include "work2/matrix_view.cuh"
 #include "work2/mm_naive.hpp"
 #include "work3/mm_shmem.hpp"
@@ -57,16 +59,26 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
   bool matmul_test_template_(const MatMulTestParams<ScalarT>& params) {
     auto [mmfunc, colmajor, m, n, k, tol] = params;
 
+    if constexpr (std::is_same_v<ScalarT, half>) {
+      m = 16 * heuristic::cover(m, 16);
+      n = 16 * heuristic::cover(n, 16);
+      k = 16 * heuristic::cover(k, 16);
+    }
+
     EigenMatrix h_a = EigenMatrix::Random(m, k);
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = mview_t(_d_a, m, k, colmajor);
-    auto d_b = mview_t(_d_b, k, n, colmajor);
-    auto d_c = mview_t(_d_c, m, n, colmajor);
+    auto d_a_ = ContinuousBlock<ScalarT>(m * k);
+    auto d_b_ = ContinuousBlock<ScalarT>(k * n);
+    auto d_c_ = ContinuousBlock<ScalarT>(m * n);
 
-    cudaMemcpy(_d_a, h_a.data(), h_a.size() * sizeof(ScalarT), cudaMemcpyHostToDevice);
-    cudaMemcpy(_d_b, h_b.data(), h_b.size() * sizeof(ScalarT), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_a_, h_a.data(), h_a.size() * sizeof(ScalarT), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b_, h_b.data(), h_b.size() * sizeof(ScalarT), cudaMemcpyHostToDevice);
+
+    auto d_a = mview_t(d_a_, m, k, colmajor);
+    auto d_b = mview_t(d_b_, k, n, colmajor);
+    auto d_c = mview_t(d_c_, m, n, colmajor);
 
     mmfunc(d_a, d_b, d_c);
 
@@ -84,23 +96,6 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
   }
 
  protected:
-  ScalarT* _d_a = nullptr;
-  ScalarT* _d_b = nullptr;
-  ScalarT* _d_c = nullptr;
-
-  void SetUp() override {
-    auto [_1, _2, m, n, k, _3] = this->GetParam();
-    cudaMalloc(&_d_a, sizeof(ScalarT) * m * k);
-    cudaMalloc(&_d_b, sizeof(ScalarT) * k * n);
-    cudaMalloc(&_d_c, sizeof(ScalarT) * m * n);
-  }
-
-  void TearDown() override {
-    if (_d_a) cudaFree(_d_a);
-    if (_d_b) cudaFree(_d_b);
-    if (_d_c) cudaFree(_d_c);
-  }
-
   bool matmul_test_(const MatMulTestParams<ScalarT>& params) {
     using eigen_scalar_t
         = std::conditional_t<std::is_same_v<ScalarT, half>, Eigen::half, ScalarT>;
@@ -118,6 +113,18 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
   }
 };
 
+template <ScalarKind ScalarT>
+std::string gen_test_case_name(const MatMulTestParams<ScalarT>& params) {
+  auto [mmfunc, colmajor, m, n, k, tol] = params;
+
+  std::stringstream ss;
+
+  ss << mmfunc << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
+     << "_n" << std::to_string(n) << "_k" << std::to_string(k);
+
+  return ss.str();
+}
+
 #define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_label, impl_template, scalar_type, tol)     \
   using MatmulTest_##impl_label##_##scalar_type = MatMulTest<scalar_type>;               \
   TEST_P(MatmulTest_##impl_label##_##scalar_type, matmul_test_##scalar_type) {           \
@@ -132,7 +139,11 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
           ::testing::Values(1, 2, 24, 128, 263),                                         \
           ::testing::Values(1, 3, 37, 120, 124),                                         \
           ::testing::Values(1, 4, 35, 121, 257),                                         \
-          ::testing::Values(tol)));
+          ::testing::Values(tol)),                                                       \
+      [](const testing::TestParamInfo<                                                   \
+          MatmulTest_##impl_label##_##scalar_type::ParamType>& info) {                   \
+        return gen_test_case_name(info.param);                                           \
+      });
 
 INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, float, 1e-5);
 INSTANTIATE_TEST_SUITE_FOR_TYPE(naive, w2::matmul, double, 1e-5);
@@ -143,9 +154,3 @@ INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, double, 1e-5);
 INSTANTIATE_TEST_SUITE_FOR_TYPE(shmem, w3::matmul, half, 1e-2);
 
 INSTANTIATE_TEST_SUITE_FOR_TYPE(wmma, w4::matmul, half, 1e-2);
-
-// auto f = [](const
-// testing::TestParamInfo<MatmulTest_##impl_label##_##scalar_type::ParamType>& info) {
-// };
-
-// TODO: add human readable test names
