@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.24)
-project(work1 LANGUAGES CXX)
+project(work3 LANGUAGES CXX)
 
 option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_BENCH "Enable benchmarks" ON)
 
-add_subdirectory(work1)
-add_subdirectory(utils/cuda_timer)
-add_subdirectory(utils/cudagh)
+add_subdirectory(work3)
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)

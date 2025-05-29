@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(work1_tests LANGUAGES CXX)
+project(work2_tests LANGUAGES CXX)
 
 include(../../cmake/deps/gtest.cmake)
 include(../../cmake/deps/eigen.cmake)
@@ -10,22 +10,23 @@ file(GLOB_RECURSE SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
-add_executable(work1_tests ${SRC})
+add_executable(work2_tests ${SRC})
 
-target_compile_features(work1_tests PRIVATE
+target_compile_features(work2_tests PRIVATE
     cxx_std_20
 )
 
-target_compile_options(work1_tests PRIVATE
+target_compile_options(work2_tests PRIVATE
     -Wall -O3
 )
 
-target_link_libraries(work1_tests PRIVATE
-    work1::core
+target_link_libraries(work2_tests PRIVATE
+    work2::core
     CUDA::cudart
     GTest::gtest_main
     Eigen3::Eigen
+    work1::cudagh
 )
 
 enable_testing()
-gtest_discover_tests(work1_tests)
+gtest_discover_tests(work2_tests)
