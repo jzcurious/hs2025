@@ -10,18 +10,30 @@
 #include <gtest/gtest.h>
 #include <string>
 
-template <ScalarKind ScalarT>
-using MatMulTestParams
-    = std::tuple<const char*, bool, std::uint32_t, std::uint32_t, std::uint32_t, float>;
+struct Blame {
+  // NOTE: Oh, dumb gtest )
+  const std::string str;
+};
+
+using MatMulTestParams = std::
+    tuple<Blame, bool, std::uint32_t, std::uint32_t, std::uint32_t, float>;  // TODO:
+                                                                             // Replace to
+                                                                             // struct.
+
+void PrintTo(const MatMulTestParams& params, std::ostream* os) {
+  auto [blame, colmajor, m, n, k, tol] = params;
+  *os << blame.str << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
+      << "_n" << std::to_string(n) << "_k" << std::to_string(k);
+}
 
 template <template <typename> class OpImplBundleT, ScalarKind ScalarT>
   requires OpImplBundleKind<OpImplBundleT, ScalarT>
-class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
+class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
  private:
   using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
 
   template <class EigenMatrix>
-  bool matmul_test_template_(const MatMulTestParams<ScalarT>& params) {
+  bool matmul_test_template_(const MatMulTestParams& params) {
     auto [_, colmajor, m, n, k, tol] = params;
 
     EigenMatrix h_a = EigenMatrix::Random(m, k);
@@ -48,7 +60,7 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
   }
 
  protected:
-  bool matmul_test_(const MatMulTestParams<ScalarT>& params) {
+  bool matmul_test_(const MatMulTestParams& params) {
     using eigen_scalar_t
         = std::conditional_t<std::is_same_v<ScalarT, half>, Eigen::half, ScalarT>;
 
@@ -65,13 +77,6 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams<ScalarT>> {
   }
 };
 
-template <ScalarKind ScalarT>
-void PrintTo(const MatMulTestParams<ScalarT>& params, std::ostream* os) {
-  auto [blame, colmajor, m, n, k, tol] = params;
-  *os << blame << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
-      << "_n" << std::to_string(n) << "_k" << std::to_string(k);
-}
-
 #define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tol)                   \
   using MatmulTest_##impl_bundle##_##scalar_type = MatMulTest<impl_bundle, scalar_type>; \
                                                                                          \
@@ -81,7 +86,7 @@ void PrintTo(const MatMulTestParams<ScalarT>& params, std::ostream* os) {
                                                                                          \
   INSTANTIATE_TEST_SUITE_P(MMTests,                                                      \
       MatmulTest_##impl_bundle##_##scalar_type,                                          \
-      ::testing::Combine(::testing::Values(#impl_bundle),                                \
+      ::testing::Combine(::testing::Values(Blame(#impl_bundle)),                         \
           ::testing::Bool(),                                                             \
           ::testing::Values(1, 2, 24, 128, 263),                                         \
           ::testing::Values(1, 3, 37, 120, 124),                                         \
