@@ -1,6 +1,7 @@
 #include "work2/benchmarks/bm_gpu_mm_template.hpp"
 
-#include "work2/mm_impls/mm_naive.hpp"
+#include "work2/mm_impls/naive_bundle.hpp"
+#include "work2/mm_impls/shmem_bundle.hpp"
 
 #include <Eigen/Dense>
 #include <benchmark/benchmark.h>
@@ -29,16 +30,16 @@ BENCHMARK(BM_MatMulCPU)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
-#define BENCHMARK_GPU_MM_TEMPLATE_(name, impl, scalar_type, colmajor)                    \
-  BENCHMARK_GPU_MM_TEMPLATE(name, impl, scalar_type, colmajor)                           \
+#define BENCHMARK_GPU_MM_TEMPLATE_(name, impl_bundle, scalar_type, colmajor)             \
+  BENCHMARK_GPU_MM_TEMPLATE(name, impl_bundle, scalar_type, colmajor)                    \
       ->RangeMultiplier(multiplier)                                                      \
       ->Ranges({range})                                                                  \
       ->Unit(unit)
 
-BENCHMARK_GPU_MM_TEMPLATE_(
-    BM_MatMulGPU_NaiveRowMajorFloat, w2::matmul_naive, float, false);
+BENCHMARK_GPU_MM_TEMPLATE(OpImplBundleNaive, float, false);
+BENCHMARK_GPU_MM_TEMPLATE(OpImplBundleNaive, float, true);
 
-BENCHMARK_GPU_MM_TEMPLATE_(
-    BM_MatMulGPU_NaiveColMajorFloat, w2::matmul_naive, float, true);
+BENCHMARK_GPU_MM_TEMPLATE(OpImplBundleShmem, float, false);
+BENCHMARK_GPU_MM_TEMPLATE(OpImplBundleShmem, float, true);
 
 BENCHMARK_MAIN();

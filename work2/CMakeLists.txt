@@ -11,5 +11,5 @@ if(ENABLE_TESTS)
 endif()
 
 if(ENABLE_BENCH)
-    # add_subdirectory(benchmarks)
+    add_subdirectory(benchmarks)
 endif()
