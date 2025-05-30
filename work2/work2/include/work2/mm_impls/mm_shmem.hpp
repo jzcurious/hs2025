@@ -1,14 +1,13 @@
 #ifndef _MM_SHMEM_HPP_
 #define _MM_SHMEM_HPP_
 
-#include "work2/matrix/matrix.cuh"
+#include "work2/matrix/matrix_view.cuh"
 
 namespace w2 {
 
 template <ScalarKind ScalarT>
-void matmul_shmem(const DeviceMatrix<ScalarT>& a,
-    const DeviceMatrix<ScalarT>& b,
-    DeviceMatrix<ScalarT>& c);
+MatrixView<ScalarT>& matmul_shmem(
+    const MatrixView<ScalarT>& a, const MatrixView<ScalarT>& b, MatrixView<ScalarT>& c);
 
 }  // namespace w2
 

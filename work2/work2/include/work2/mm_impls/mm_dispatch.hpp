@@ -4,9 +4,9 @@
 #include <cuda_fp16.h>
 
 #define MM_DISPATCH(impl, scalar_type)                                                   \
-  template void impl<scalar_type>(const DeviceMatrix<scalar_type>& a,                    \
-      const DeviceMatrix<scalar_type>& b,                                                \
-      DeviceMatrix<scalar_type>& c);
+  template MatrixView<scalar_type>& impl<scalar_type>(const MatrixView<scalar_type>& a,  \
+      const MatrixView<scalar_type>& b,                                                  \
+      MatrixView<scalar_type>& c);
 
 #define MM_DISPATCH_FOR_ALL_SUPPORTED_TYPES(impl)                                        \
   MM_DISPATCH(impl, float);                                                              \

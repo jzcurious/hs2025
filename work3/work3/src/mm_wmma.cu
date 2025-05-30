@@ -28,6 +28,6 @@ void w4::matmul(const MatrixT& a, const MatrixT& b, MatrixT& c) {
 
 MM_DISPATCH(w4::matmul, half);
 
-#if __CUDA_ARCH__ >= 800  // TODO: learn compute capability
+#if __CUDA_ARCH__ >= 800
 MM_DISPATCH(w4::matmul, float);
 #endif

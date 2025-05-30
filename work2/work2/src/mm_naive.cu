@@ -5,9 +5,8 @@
 #include "cudagh.hpp"
 
 template <ScalarKind ScalarT>
-void w2::matmul_naive(const DeviceMatrix<ScalarT>& a,
-    const DeviceMatrix<ScalarT>& b,
-    DeviceMatrix<ScalarT>& c) {
+MatrixView<ScalarT>& w2::matmul_naive(
+    const MatrixView<ScalarT>& a, const MatrixView<ScalarT>& b, MatrixView<ScalarT>& c) {
   constexpr dim3 block_size = {16, 16};
 
   const dim3 grid_size = {
@@ -15,7 +14,8 @@ void w2::matmul_naive(const DeviceMatrix<ScalarT>& a,
       cudagh::cover(a.size(0), block_size.y),
   };
 
-  kernel_mm_naive<<<grid_size, block_size>>>(a.view(), b.view(), c.view());
+  kernel_mm_naive<<<grid_size, block_size>>>(a, b, c);
+  return c;
 }
 
 MM_DISPATCH_FOR_ALL_SUPPORTED_TYPES(w2::matmul_naive);

@@ -4,7 +4,10 @@
 #include "work2/matrix/devblock.cuh"
 #include "work2/matrix/matrix_view.cuh"
 
-template <ScalarKind ScalarT>
+#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+
+template <template <class> class OpImplBundleT, ScalarKind ScalarT>
+  requires OpImplBundleKind<OpImplBundleT, ScalarT>
 class DeviceMatrix final {
  private:
   DeviceBlock<ScalarT> _block;
@@ -19,7 +22,11 @@ class DeviceMatrix final {
       : _block((ncols + col_pad) * (mrows + row_pad))
       , _view(_block, mrows, ncols, colmajor, row_pad, col_pad) {}
 
-  DeviceMatrix(const DeviceMatrix&) = delete;
+  DeviceMatrix(DeviceMatrix&& matrix)
+      : _block(std::move(matrix._block))
+      , _view(matrix._view) {}
+
+  DeviceMatrix(const DeviceMatrix& matrix) = delete;
   DeviceMatrix& operator=(const DeviceMatrix&) = delete;
 
   std::uint32_t size(std::uint8_t axis) const {
@@ -38,10 +45,6 @@ class DeviceMatrix final {
     return _view(i, j);
   }
 
-  operator MatrixView<ScalarT>() {
-    return _view;
-  }
-
   const MatrixView<ScalarT>& view() const {
     return _view;
   }
@@ -56,6 +59,13 @@ class DeviceMatrix final {
 
   DeviceBlock<ScalarT>& block() {
     return _block;
+  }
+
+  DeviceMatrix operator*(const DeviceMatrix& matrix) const {
+    // NOTE: You could add a check for commutativity of matrices.
+    auto result = DeviceMatrix(size(0), matrix.size(1), _view.colmajor);
+    OpImplBundleT<ScalarT>::multiplies(_view, matrix._view, result._view);
+    return result;
   }
 };
 

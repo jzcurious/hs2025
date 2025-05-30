@@ -18,6 +18,12 @@ class DeviceBlock {
     cudaMalloc(&_ptr, size);
   }
 
+  DeviceBlock(DeviceBlock&& block)
+      : size(block.size)
+      , _ptr(block._ptr) {
+    block._ptr = nullptr;
+  }
+
   DeviceBlock(const DeviceBlock&) = delete;
   DeviceBlock& operator=(const DeviceBlock&) = delete;
 
