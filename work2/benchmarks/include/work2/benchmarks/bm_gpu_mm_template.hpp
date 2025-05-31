@@ -13,7 +13,6 @@ template <template <typename> class OpImplBundleT, ScalarKind ScalarT, bool colm
   requires OpImplBundleKind<OpImplBundleT, ScalarT>
 void BM_GPUMMTemplate(benchmark::State& state) {
   using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
-
   auto mrows_ncols = state.range(0);
 
   auto a = matrix_t(mrows_ncols, mrows_ncols, colmajor);
@@ -30,7 +29,6 @@ void BM_GPUMMTemplate(benchmark::State& state) {
 
     benchmark::DoNotOptimize(elapsed_time);
     benchmark::ClobberMemory();
-
     state.SetIterationTime(elapsed_time);
   }
 }
