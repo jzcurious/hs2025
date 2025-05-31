@@ -4,7 +4,7 @@ project(work1 LANGUAGES CXX)
 option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_BENCH "Enable benchmarks" ON)
 
-add_subdirectory(work1)
+add_subdirectory(core)
 add_subdirectory(utils/cuda_timer)
 add_subdirectory(utils/cudagh)
 

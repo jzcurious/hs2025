@@ -4,7 +4,7 @@ project(work3 LANGUAGES CXX)
 option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_BENCH "Enable benchmarks" ON)
 
-add_subdirectory(work3)
+add_subdirectory(core)
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)
