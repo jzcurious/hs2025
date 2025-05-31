@@ -1,7 +1,7 @@
 #ifndef _KERNEL_MM_WMMA_CUH_
 #define _KERNEL_MM_WMMA_CUH_
 
-#include "work2/matrix_view_kind.hpp"
+#include "work2/matrix/matrix_view_kind.hpp"
 
 #include <cstdint>
 #include <mma.h>
@@ -9,10 +9,10 @@
 using namespace nvcuda;
 
 template <MatrixViewKind MatrixT,
+    bool colmajor = false,
     std::uint32_t wmma_m = 16,
     std::uint32_t wmma_n = 16,
-    std::uint32_t wmma_k = 16,
-    bool colmajor = false>
+    std::uint32_t wmma_k = 16>
 __global__ void kernel_mm_wmma(const MatrixT a, const MatrixT b, MatrixT c) {
   using scalar_t = typename MatrixT::scalar_t;
 
