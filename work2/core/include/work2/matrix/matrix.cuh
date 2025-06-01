@@ -1,7 +1,8 @@
 #ifndef _MATRIX_CUH_
 #define _MATRIX_CUH_
 
-#include "work2/matrix/devblock.cuh"
+#include "work2/matrix/devblock.hpp"
+#include "work2/matrix/matrix_ops.hpp"
 #include "work2/matrix/matrix_view.cuh"
 
 #include "work2/mm_impls/op_impl_bundle_kind.hpp"
@@ -14,13 +15,15 @@ class DeviceMatrix final {
   MatrixView<ScalarT> _view;
 
  public:
-  DeviceMatrix(std::uint32_t mrows,
-      std::uint32_t ncols,
-      bool colmajor = false,
-      std::uint32_t row_pad = 0,
-      std::uint32_t col_pad = 0)
-      : _block((ncols + col_pad) * (mrows + row_pad))
-      , _view(_block, mrows, ncols, colmajor, row_pad, col_pad) {}
+  DeviceMatrix(std::uint32_t mrows, std::uint32_t ncols, MatrixOps ops = MatrixOps{})
+      : _block((ncols + ops.hpad_) * (mrows + ops.vpad_))
+      , _view(_block, mrows, ncols, ops.colmajor_, ops.vpad_, ops.hpad_) {
+    if (ops.vpad_ or ops.hpad_) {
+      _block.memset(0);  // NOTE: It's stupid, but I'm too lazy to do it any other way.
+                         // You can fix it.
+    }
+    if (ops.src_) copy_data_from_host(ops.src_);
+  }
 
   DeviceMatrix(DeviceMatrix&& matrix)
       : _block(std::move(matrix._block))
@@ -53,17 +56,42 @@ class DeviceMatrix final {
     return _view;
   }
 
-  const DeviceBlock<ScalarT>& block() const {
-    return _block;
+  void copy_data_from_host(const void* host_ptr) {
+    if (_view.hpad() and not _view.colmajor) {
+      _block.copy_from_host_2d(
+          host_ptr, _view.ldim(), _view.size(1), _view.size(1), _view.size(0));
+      return;
+    }
+
+    if (_view.vpad() and _view.colmajor) {
+      _block.copy_from_host_2d(
+          host_ptr, _view.ldim(), _view.size(0), _view.size(0), _view.size(1));
+      return;
+    }
+
+    _block.copy_from_host(host_ptr);
   }
 
-  DeviceBlock<ScalarT>& block() {
-    return _block;
+  void copy_data_to_host(void* host_ptr) {
+    if (_view.hpad() and not _view.colmajor) {
+      _block.copy_from_host_2d(
+          host_ptr, _view.size(1), _view.ldim(), _view.size(1), _view.size(0));
+      return;
+    }
+
+    if (_view.vpad() and _view.colmajor) {
+      _block.copy_from_host_2d(
+          host_ptr, _view.size(0), _view.ldim(), _view.size(0), _view.size(1));
+      return;
+    }
+
+    _block.copy_from_host(host_ptr);
   }
 
   DeviceMatrix operator*(const DeviceMatrix& matrix) const {
-    // NOTE: You could add a check for commutativity of matrices.
-    auto result = DeviceMatrix(size(0), matrix.size(1), _view.colmajor);
+    /* NOTE: You can add a check for matrix commutativity, but I'm too lazy to do it. */
+
+    auto result = DeviceMatrix(size(0), matrix.size(1), {.colmajor_ = _view.colmajor});
     OpImplBundleT<ScalarT>::multiplies(_view, matrix._view, result._view);
     return result;
   }

@@ -41,15 +41,15 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = matrix_t(m, k, colmajor);
-    auto d_b = matrix_t(k, n, colmajor);
+    auto d_a = matrix_t(m, k, {.colmajor_ = colmajor});
+    auto d_b = matrix_t(k, n, {.colmajor_ = colmajor});
 
-    d_a.block().copy_from_host(h_a.data());
-    d_b.block().copy_from_host(h_b.data());
+    d_a.copy_data_from_host(h_a.data());
+    d_b.copy_data_from_host(h_b.data());
     auto d_c = d_a * d_b;
 
     EigenMatrix hd_c = EigenMatrix(m, n);
-    d_c.block().copy_to_host(hd_c.data());
+    d_c.copy_data_to_host(hd_c.data());
 
     if constexpr (std::is_same_v<ScalarT, half>) {
       auto hd_c_float = hd_c.template cast<float>();

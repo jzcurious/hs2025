@@ -15,9 +15,9 @@ void BM_GPUMMTemplate(benchmark::State& state) {
   using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
   auto mrows_ncols = state.range(0);
 
-  auto a = matrix_t(mrows_ncols, mrows_ncols, colmajor);
-  auto b = matrix_t(mrows_ncols, mrows_ncols, colmajor);
-  auto c = matrix_t(mrows_ncols, mrows_ncols, colmajor);
+  auto a = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
+  auto b = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
+  auto c = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
 
   for (auto _ : state) {
     float elapsed_time = 0;

@@ -19,8 +19,8 @@ class MatrixView final {
   std::uint32_t _mrows;
   std::uint32_t _ncols;
   std::uint32_t _ldim;
-  std::uint32_t _row_pad;
-  std::uint32_t _col_pad;
+  std::uint32_t _vpad;
+  std::uint32_t _hpad;
 
  public:
   using scalar_t = ScalarT;
@@ -31,39 +31,39 @@ class MatrixView final {
       std::uint32_t mrows,
       std::uint32_t ncols,
       bool colmajor = false,
-      std::uint32_t row_pad = 0,
-      std::uint32_t col_pad = 0)
+      std::uint32_t vpad = 0,
+      std::uint32_t hpad = 0)
       : _data(data)
       , _mrows(mrows)
       , _ncols(ncols)
-      , _ldim(colmajor ? mrows + row_pad : ncols + col_pad)
-      , _row_pad(row_pad)
-      , _col_pad(col_pad)
+      , _ldim(colmajor ? mrows + vpad : ncols + hpad)
+      , _vpad(vpad)
+      , _hpad(hpad)
       , colmajor(colmajor) {}
 
   __hd__ MatrixView(ScalarT* data,
       std::uint32_t mrows,
       std::uint32_t ncols,
       layout::rowmajor,
-      std::uint32_t row_pad = 0,
-      std::uint32_t col_pad = 0)
-      : MatrixView(data, mrows, ncols, false, row_pad, col_pad) {}
+      std::uint32_t vpad = 0,
+      std::uint32_t hpad = 0)
+      : MatrixView(data, mrows, ncols, false, vpad, hpad) {}
 
   __hd__ MatrixView(ScalarT* data,
       std::uint32_t mrows,
       std::uint32_t ncols,
       layout::colmajor,
-      std::uint32_t row_pad = 0,
-      std::uint32_t col_pad = 0)
-      : MatrixView(data, mrows, ncols, true, row_pad, col_pad) {}
+      std::uint32_t vpad = 0,
+      std::uint32_t hpad = 0)
+      : MatrixView(data, mrows, ncols, true, vpad, hpad) {}
 
   __hd__ MatrixView(const MatrixView& view)
       : _data(view._data)
       , _mrows(view._mrows)
       , _ncols(view._ncols)
       , _ldim(view._ldim)
-      , _row_pad(view._row_pad)
-      , _col_pad(view._col_pad)
+      , _vpad(view._vpad)
+      , _hpad(view._hpad)
       , colmajor(view.colmajor) {}
 
   __hd__ std::uint32_t size(std::uint8_t axis) const {
@@ -75,7 +75,15 @@ class MatrixView final {
   }
 
   __hd__ std::uint32_t pad(std::uint8_t axis) const {
-    return axis ? _col_pad : _row_pad;
+    return axis ? _vpad : _hpad;
+  }
+
+  __hd__ std::uint32_t vpad() const {
+    return _vpad;
+  }
+
+  __hd__ std::uint32_t hpad() const {
+    return _hpad;
   }
 
   __hd__ ScalarT* data() const {
