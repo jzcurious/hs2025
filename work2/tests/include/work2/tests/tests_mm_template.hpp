@@ -16,15 +16,23 @@ struct Blame {
   const std::string str;
 };
 
-using MatMulTestParams = std::
-    tuple<Blame, bool, std::uint32_t, std::uint32_t, std::uint32_t, float>;  // TODO:
-                                                                             // Replace to
-                                                                             // struct.
+using MatMulTestParams = std::tuple<Blame,
+    bool,
+    std::uint32_t,
+    std::uint32_t,
+    std::uint32_t,
+    std::uint32_t,
+    std::uint32_t,
+    float>;  // TODO:
+             // Replace to
+             // struct.
 
 inline void PrintTo(const MatMulTestParams& params, std::ostream* os) {
-  auto [blame, colmajor, m, n, k, tol] = params;
+  auto [blame, colmajor, m, n, k, tm, tn, tol] = params;
   *os << blame.str << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
       << "_n" << std::to_string(n) << "_k" << std::to_string(k);
+
+  if (tm > 1 or tn > 1) *os << "_tile_" << tm << "x" << tn;
 }
 
 template <template <typename> class OpImplBundleT, ScalarKind ScalarT>
@@ -35,14 +43,14 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
 
   template <class EigenMatrix>
   bool matmul_test_template_(const MatMulTestParams& params) {
-    auto [_, colmajor, m, n, k, tol] = params;
+    auto [_, colmajor, m, n, k, tm, tn, tol] = params;
 
     EigenMatrix h_a = EigenMatrix::Random(m, k);
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = matrix_t(m, k, {.colmajor_ = colmajor});
-    auto d_b = matrix_t(k, n, {.colmajor_ = colmajor});
+    auto d_a = matrix_t(m, k, MatrixOps{}.colmajor(colmajor).tile(tm, tn));
+    auto d_b = matrix_t(k, n, MatrixOps{}.colmajor(colmajor).tile(tm, tn));
 
     d_a.copy_data_from_host(h_a.data());
     d_b.copy_data_from_host(h_b.data());
@@ -78,7 +86,7 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
   }
 };
 
-#define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tol)                   \
+#define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tile_size, tol)        \
   using MatmulTest_##impl_bundle##_##scalar_type = MatMulTest<impl_bundle, scalar_type>; \
                                                                                          \
   TEST_P(MatmulTest_##impl_bundle##_##scalar_type, matmul_test_##scalar_type) {          \
@@ -92,6 +100,8 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
           ::testing::Values(1, 2, 24, 128, 263),                                         \
           ::testing::Values(1, 3, 37, 120, 124),                                         \
           ::testing::Values(1, 4, 35, 121, 257),                                         \
+          ::testing::Values(tile_size),                                                  \
+          ::testing::Values(tile_size),                                                  \
           ::testing::Values(tol)));
 
 #endif  // TESTS_MM_TEMPLATE_HPP

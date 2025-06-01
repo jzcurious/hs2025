@@ -4,7 +4,7 @@
 #include "work2/benchmarks/bm_gpu_mm_template.hpp"
 
 constexpr const int multiplier = 2;
-constexpr const auto range = std::make_pair(8, 1 << 10);
+constexpr const auto range = std::make_pair(16, 1 << 10);
 constexpr const auto unit = benchmark::kMillisecond;
 
 #define BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(impl_bundle, scalar_type, colmajor)           \

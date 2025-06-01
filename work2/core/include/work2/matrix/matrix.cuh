@@ -4,7 +4,6 @@
 #include "work2/matrix/devblock.hpp"
 #include "work2/matrix/matrix_ops.hpp"
 #include "work2/matrix/matrix_view.cuh"
-
 #include "work2/mm_impls/op_impl_bundle_kind.hpp"
 
 template <template <class> class OpImplBundleT, ScalarKind ScalarT>
@@ -13,11 +12,13 @@ class DeviceMatrix final {
  private:
   DeviceBlock<ScalarT> _block;
   MatrixView<ScalarT> _view;
+  MatrixOps _ops;
 
  public:
   DeviceMatrix(std::uint32_t mrows, std::uint32_t ncols, MatrixOps ops = MatrixOps{})
       : _block((ncols + ops.hpad_) * (mrows + ops.vpad_))
-      , _view(_block, mrows, ncols, ops.colmajor_, ops.vpad_, ops.hpad_) {
+      , _view(_block, mrows, ncols, ops.colmajor_, ops.vpad_, ops.hpad_)
+      , _ops(ops) {
     if (ops.vpad_ or ops.hpad_) {
       _block.memset(0);  // NOTE: It's stupid, but I'm too lazy to do it any other way.
                          // You can fix it.
@@ -89,9 +90,15 @@ class DeviceMatrix final {
   }
 
   DeviceMatrix operator*(const DeviceMatrix& matrix) const {
-    /* NOTE: You can add a check for matrix commutativity, but I'm too lazy to do it. */
+    /* NOTE: You can add a check for matrix commutativity (`size(1) == matrix.size(0)`),
+     * but I'm too lazy to do it. */
 
-    auto result = DeviceMatrix(size(0), matrix.size(1), {.colmajor_ = _view.colmajor});
+    auto result_mrows = size(0);
+    auto result_ncols = matrix.size(1);
+    auto result_ops = _ops.copy().hpad(matrix._view.hpad());
+
+    auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
+
     OpImplBundleT<ScalarT>::multiplies(_view, matrix._view, result._view);
     return result;
   }

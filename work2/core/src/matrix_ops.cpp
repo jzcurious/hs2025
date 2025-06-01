@@ -29,3 +29,26 @@ MatrixOps& MatrixOps::src(void* host_ptr) {
   src_ = host_ptr;
   return *this;
 }
+
+MatrixOps& MatrixOps::tile(std::uint32_t tile_mrows,
+    std::uint32_t tile_ncols,
+    std::uint32_t mrows,
+    std::uint32_t ncols) {
+
+  tile_mrows_ = tile_mrows;
+  tile_ncols_ = tile_ncols;
+
+  auto calc_padding = [](std::uint32_t matrix_size, std::uint32_t tile_size) {
+    if (tile_size == 1) return 0u;
+    return (matrix_size + tile_size - 1) / tile_size * tile_size - matrix_size;
+  };
+
+  hpad_ = calc_padding(ncols, tile_ncols);
+  vpad_ = calc_padding(mrows, tile_mrows);
+
+  return *this;
+}
+
+MatrixOps MatrixOps::copy() const {
+  return *this;
+}
