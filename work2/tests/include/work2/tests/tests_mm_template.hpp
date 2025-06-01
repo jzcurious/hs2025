@@ -49,11 +49,10 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = matrix_t(m, k, MatrixOps{}.colmajor(colmajor).tile(tm, tn, m, k));
-    auto d_b = matrix_t(k, n, MatrixOps{}.colmajor(colmajor).tile(tm, tn, k, n));
-
-    d_a.copy_data_from_host(h_a.data());
-    d_b.copy_data_from_host(h_b.data());
+    auto d_a = matrix_t(
+        m, k, MatrixOps{}.colmajor(colmajor).tile(tm, tn, m, k).src(h_a.data()));
+    auto d_b = matrix_t(
+        k, n, MatrixOps{}.colmajor(colmajor).tile(tm, tn, k, n).src(h_b.data()));
     auto d_c = d_a * d_b;
 
     EigenMatrix hd_c = EigenMatrix(m, n);
