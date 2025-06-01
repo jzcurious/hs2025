@@ -39,7 +39,6 @@ MatrixOps& MatrixOps::tile(std::uint32_t tile_mrows,
   tile_ncols_ = tile_ncols;
 
   auto calc_padding = [](std::uint32_t matrix_size, std::uint32_t tile_size) {
-    if (tile_size == 1) return 0u;
     return (matrix_size + tile_size - 1) / tile_size * tile_size - matrix_size;
   };
 

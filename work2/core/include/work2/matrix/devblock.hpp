@@ -30,12 +30,12 @@ class DeviceBlock {
   DeviceBlock(const DeviceBlock&) = delete;
   DeviceBlock& operator=(const DeviceBlock&) = delete;
 
-  void memset_2d(std::size_t pitch, int value, std::size_t width, std::size_t height) {
-    cudaMemset2D(_ptr, pitch, value, item_size * width, height);
-  }
-
   void memset(int value) {
     cudaMemset(_ptr, value, size);
+  }
+
+  void memset_2d(std::size_t pitch, int value, std::size_t width, std::size_t height) {
+    cudaMemset2D(_ptr, pitch, value, item_size * width, height);
   }
 
   void copy_from_host(const void* host_ptr) {

@@ -28,7 +28,8 @@ class DeviceMatrix final {
 
   DeviceMatrix(DeviceMatrix&& matrix)
       : _block(std::move(matrix._block))
-      , _view(matrix._view) {}
+      , _view(matrix._view)
+      , _ops(matrix._ops) {}
 
   DeviceMatrix(const DeviceMatrix& matrix) = delete;
   DeviceMatrix& operator=(const DeviceMatrix&) = delete;

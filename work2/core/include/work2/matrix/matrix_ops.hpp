@@ -20,8 +20,8 @@ struct MatrixOps final {
 
   MatrixOps& tile(std::uint32_t tile_mrows,
       std::uint32_t tile_ncols,
-      std::uint32_t mrows = 0,
-      std::uint32_t ncols = 0);
+      std::uint32_t mrows,
+      std::uint32_t ncols);
 
   MatrixOps copy() const;
 };

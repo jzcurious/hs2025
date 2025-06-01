@@ -32,7 +32,7 @@ inline void PrintTo(const MatMulTestParams& params, std::ostream* os) {
   *os << blame.str << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
       << "_n" << std::to_string(n) << "_k" << std::to_string(k);
 
-  if (tm > 1 or tn > 1) *os << "_tile_" << tm << "x" << tn;
+  if (tm > 1 or tn > 1) *os << "_tile" << tm << "x" << tn;
 }
 
 template <template <typename> class OpImplBundleT, ScalarKind ScalarT>
@@ -49,8 +49,8 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
     EigenMatrix h_b = EigenMatrix::Random(k, n);
     EigenMatrix h_c = h_a * h_b;
 
-    auto d_a = matrix_t(m, k, MatrixOps{}.colmajor(colmajor).tile(tm, tn));
-    auto d_b = matrix_t(k, n, MatrixOps{}.colmajor(colmajor).tile(tm, tn));
+    auto d_a = matrix_t(m, k, MatrixOps{}.colmajor(colmajor).tile(tm, tn, m, k));
+    auto d_b = matrix_t(k, n, MatrixOps{}.colmajor(colmajor).tile(tm, tn, k, n));
 
     d_a.copy_data_from_host(h_a.data());
     d_b.copy_data_from_host(h_b.data());
