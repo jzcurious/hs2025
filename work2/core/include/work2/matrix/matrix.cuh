@@ -74,18 +74,18 @@ class DeviceMatrix final {
 
   void copy_data_to_host(void* host_ptr) {
     if (_view.hpad() and not _view.colmajor) {
-      _block.copy_from_host_2d(
+      _block.copy_to_host_2d(
           host_ptr, _view.size(1), _view.ldim(), _view.size(1), _view.size(0));
       return;
     }
 
     if (_view.vpad() and _view.colmajor) {
-      _block.copy_from_host_2d(
+      _block.copy_to_host_2d(
           host_ptr, _view.size(0), _view.ldim(), _view.size(0), _view.size(1));
       return;
     }
 
-    _block.copy_from_host(host_ptr);
+    _block.copy_to_host(host_ptr);
   }
 
   DeviceMatrix operator*(const DeviceMatrix& matrix) const {
