@@ -35,7 +35,7 @@ class DeviceBlock {
   }
 
   void memset_2d(std::size_t pitch, int value, std::size_t width, std::size_t height) {
-    cudaMemset2D(_ptr, pitch, value, item_size * width, height);
+    cudaMemset2D(_ptr, pitch * item_size, value, width * item_size, height);
   }
 
   void copy_from_host(const void* host_ptr) {
@@ -60,10 +60,10 @@ class DeviceBlock {
       std::size_t width,
       std::size_t height) {
     cudaMemcpy2D(_ptr,
-        dpitch,
+        dpitch * item_size,
         host_ptr,
-        spitch,
-        item_size * width,
+        spitch * item_size,
+        width * item_size,
         height,
         cudaMemcpyHostToDevice);
   }
@@ -74,10 +74,10 @@ class DeviceBlock {
       std::size_t width,
       std::size_t height) {
     cudaMemcpy2D(_ptr,
-        dpitch,
+        dpitch * item_size,
         device_ptr,
-        spitch,
-        item_size * width,
+        spitch * item_size,
+        width * item_size,
         height,
         cudaMemcpyDeviceToDevice);
   }
@@ -88,10 +88,10 @@ class DeviceBlock {
       std::size_t width,
       std::size_t height) {
     cudaMemcpy2D(host_ptr,
-        dpitch,
+        dpitch * item_size,
         _ptr,
-        spitch,
-        item_size * width,
+        spitch * item_size,
+        width * item_size,
         height,
         cudaMemcpyDeviceToHost);
   }
@@ -102,10 +102,10 @@ class DeviceBlock {
       std::size_t width,
       std::size_t height) {
     cudaMemcpy2D(device_ptr,
-        dpitch,
+        dpitch * item_size,
         _ptr,
-        spitch,
-        item_size * width,
+        spitch * item_size,
+        width * item_size,
         height,
         cudaMemcpyDeviceToDevice);
   }

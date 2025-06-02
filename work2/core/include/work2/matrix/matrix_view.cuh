@@ -75,7 +75,7 @@ class MatrixView final {
   }
 
   __hd__ std::uint32_t pad(std::uint8_t axis) const {
-    return axis ? _vpad : _hpad;
+    return axis ? _hpad : _vpad;
   }
 
   __hd__ std::uint32_t vpad() const {
