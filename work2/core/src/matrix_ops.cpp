@@ -48,6 +48,6 @@ MatrixOps& MatrixOps::tile(std::uint32_t tile_mrows,
   return *this;
 }
 
-MatrixOps MatrixOps::copy() const {
-  return *this;
+MatrixOps MatrixOps::like() const {
+  return MatrixOps{*this}.src(nullptr);
 }

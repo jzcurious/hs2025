@@ -23,7 +23,7 @@ struct MatrixOps final {
       std::uint32_t mrows,
       std::uint32_t ncols);
 
-  MatrixOps copy() const;
+  MatrixOps like() const;
 };
 
 #endif  // _MATRIX_OPS_HPP_
