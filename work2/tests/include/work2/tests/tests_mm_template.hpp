@@ -86,14 +86,16 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
 };
 
 #define INSTANTIATE_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tile_size, tol)        \
-  using MatmulTest_##impl_bundle##_##scalar_type = MatMulTest<impl_bundle, scalar_type>; \
+  using MatmulTest_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size         \
+      = MatMulTest<impl_bundle, scalar_type>;                                            \
                                                                                          \
-  TEST_P(MatmulTest_##impl_bundle##_##scalar_type, matmul_test_##scalar_type) {          \
+  TEST_P(MatmulTest_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size,       \
+      matmul_test_##scalar_type) {                                                       \
     EXPECT_TRUE(matmul_test_(this->GetParam()));                                         \
   }                                                                                      \
                                                                                          \
   INSTANTIATE_TEST_SUITE_P(MMTests,                                                      \
-      MatmulTest_##impl_bundle##_##scalar_type,                                          \
+      MatmulTest_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size,          \
       ::testing::Combine(::testing::Values(Blame(#impl_bundle)),                         \
           ::testing::Bool(),                                                             \
           ::testing::Values(1, 2, 24, 128, 263),                                         \
