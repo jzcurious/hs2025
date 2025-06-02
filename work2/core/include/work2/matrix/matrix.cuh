@@ -71,7 +71,7 @@ class DeviceMatrix final {
       return;
     }
 
-    _block.copy_from_host(host_ptr);
+    _block.copy_from_host(host_ptr, _view.numel());
   }
 
   void copy_data_to_host(void* host_ptr) {
@@ -87,7 +87,7 @@ class DeviceMatrix final {
       return;
     }
 
-    _block.copy_to_host(host_ptr);
+    _block.copy_to_host(host_ptr, _view.numel());
   }
 
   DeviceMatrix operator*(const DeviceMatrix& matrix) const {

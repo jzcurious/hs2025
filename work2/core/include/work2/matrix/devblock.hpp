@@ -38,20 +38,22 @@ class DeviceBlock {
     cudaMemset2D(_ptr, pitch * item_size, value, width * item_size, height);
   }
 
-  void copy_from_host(const void* host_ptr) {
-    cudaMemcpy(_ptr, host_ptr, size, cudaMemcpyHostToDevice);
+  void copy_from_host(const void* host_ptr, std::size_t numel = 0) {
+    cudaMemcpy(_ptr, host_ptr, numel ? numel * item_size : size, cudaMemcpyHostToDevice);
   }
 
-  void copy_from_device(const void* device_ptr) {
-    cudaMemcpy(_ptr, device_ptr, size, cudaMemcpyDeviceToDevice);
+  void copy_from_device(const void* device_ptr, std::size_t numel = 0) {
+    cudaMemcpy(
+        _ptr, device_ptr, numel ? numel * item_size : size, cudaMemcpyDeviceToDevice);
   }
 
-  void copy_to_host(void* host_ptr) const {
-    cudaMemcpy(host_ptr, _ptr, size, cudaMemcpyDeviceToHost);
+  void copy_to_host(void* host_ptr, std::size_t numel = 0) const {
+    cudaMemcpy(host_ptr, _ptr, numel ? numel * item_size : size, cudaMemcpyDeviceToHost);
   }
 
-  void copy_to_device(void* device_ptr) const {
-    cudaMemcpy(device_ptr, _ptr, size, cudaMemcpyDeviceToDevice);
+  void copy_to_device(void* device_ptr, std::size_t numel = 0) const {
+    cudaMemcpy(
+        device_ptr, _ptr, numel ? numel * item_size : size, cudaMemcpyDeviceToDevice);
   }
 
   void copy_from_host_2d(const void* host_ptr,
