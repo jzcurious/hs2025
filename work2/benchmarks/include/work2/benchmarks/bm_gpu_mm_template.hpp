@@ -17,7 +17,6 @@ void BM_GPUMMTemplate(benchmark::State& state) {
 
   auto a = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
   auto b = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
-  auto c = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
 
   for (auto _ : state) {
     float elapsed_time = 0;

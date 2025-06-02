@@ -12,6 +12,12 @@ BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, true);
 BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, false);
 BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, true);
 
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, half, false);
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, half, true);
+
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, half, false);
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, half, true);
+
 BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleWmma, half, false);
 BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleWmma, half, true);
 

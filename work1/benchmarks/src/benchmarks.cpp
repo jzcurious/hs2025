@@ -13,7 +13,7 @@ static void BM_EigenVectorAddCPU(benchmark::State& state) {
   Eigen::VectorXf result(len);
 
   for (auto _ : state) {
-    result = a + b;
+    result = a + b;  // lazy RHS
     benchmark::DoNotOptimize(result.data());
     benchmark::ClobberMemory();
   }

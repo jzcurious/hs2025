@@ -55,6 +55,14 @@ def make_speedup_chart(
         width=width,
         height=height,
         autosize=False,
+        legend=dict(
+            title="Benchmarks:",
+            orientation="v",
+            yanchor="top",
+            y=-0.3,
+            xanchor="left",
+            x=0,
+        ),
     )
 
     fig.write_html(path_to_chart)

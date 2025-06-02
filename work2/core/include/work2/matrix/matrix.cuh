@@ -96,7 +96,7 @@ class DeviceMatrix final {
 
     auto result_mrows = size(0);
     auto result_ncols = matrix.size(1);
-    auto result_ops = _ops.like().vpad(_view.vpad()).hpad(matrix._view.hpad());
+    auto result_ops = _ops.like().hpad(matrix._view.hpad());
 
     auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
 
