@@ -89,6 +89,7 @@ constexpr const auto range = std::make_pair(8, 1 << 26);
 constexpr const auto unit = benchmark::kMillisecond;
 
 BENCHMARK(BM_EigenVectorAddCPU)
+    ->Name("Eigen Vector Addition (CPU)")
     ->RangeMultiplier(multiplier)
     ->Ranges({range})
     ->Unit(unit)
@@ -96,12 +97,14 @@ BENCHMARK(BM_EigenVectorAddCPU)
     ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_OurVectorAddGPU)
+    ->Name("CUDA Vector Addition (GPU)")
     ->RangeMultiplier(multiplier)
     ->Ranges({range})
     ->Unit(unit)
     ->UseManualTime();
 
 BENCHMARK(BM_OurVectorAddGPUCopyOverhead)
+    ->Name("CUDA Vector Addition (GPU, with copy overhead)")
     ->RangeMultiplier(multiplier)
     ->Ranges({range})
     ->Unit(unit)

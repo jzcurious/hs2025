@@ -20,16 +20,23 @@ static void BM_MatMulCPU(benchmark::State& state) {
 }
 
 BENCHMARK(BM_MatMulCPU)
+    ->Name("Eigen MM (float, col-major)")
     ->RangeMultiplier(multiplier)
     ->Ranges({range})
     ->Unit(unit)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, false);
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, true);
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, false)
+    ->Name("CUDA MM (Naive, float, row-major)");
 
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, false);
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, true);
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, true)
+    ->Name("CUDA MM (Naive, float, col-major)");
+
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, false)
+    ->Name("CUDA MM (Shared Memory, float, row-major)");
+
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, true)
+    ->Name("CUDA MM (Shared Memory, float, col-major)");
 
 BENCHMARK_MAIN();
