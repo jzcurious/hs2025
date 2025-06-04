@@ -56,7 +56,7 @@ def make_complexity_chart(
     return fig
 
 
-if __name__ == "__main__":
+def main(argv):
     argparser = dry.make_default_argparser()
 
     argparser.add_argument(
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         help="Output path for the chart file",
     )
 
-    args = argparser.parse_args()
+    args = argparser.parse_args(argv)
 
     dry.show_chart(
         make_complexity_chart(
@@ -82,3 +82,9 @@ if __name__ == "__main__":
         ),
         args.chart,
     )
+
+
+if __name__ == "__main__":
+    import sys
+
+    main(sys.argv[1:])

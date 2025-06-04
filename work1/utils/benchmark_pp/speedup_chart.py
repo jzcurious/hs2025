@@ -63,7 +63,7 @@ def make_speedup_chart(
     return fig
 
 
-if __name__ == "__main__":
+def main(argv):
     argparser = dry.make_default_argparser()
 
     argparser.add_argument(
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         help="Target banchmark",
     )
 
-    args = argparser.parse_args()
+    args = argparser.parse_args(argv)
 
     target_df = calc_speedup(
         dry.parse_complexity(Path(args.json)),
@@ -111,3 +111,9 @@ if __name__ == "__main__":
         ),
         args.chart,
     )
+
+
+if __name__ == "__main__":
+    import sys
+
+    main(sys.argv[1:])
