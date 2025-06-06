@@ -1,0 +1,14 @@
+.git
+.github
+.cache
+build
+venv
+
+.clang-format
+.clangd
+.gitignore
+.sccignore
+LICENSE
+pyrightconfig.json
+README.md
+requirements.txt
