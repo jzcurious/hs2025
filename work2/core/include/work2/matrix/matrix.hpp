@@ -1,5 +1,5 @@
-#ifndef _MATRIX_CUH_
-#define _MATRIX_CUH_
+#ifndef _MATRIX_HPP_
+#define _MATRIX_HPP_
 
 #include "work2/matrix/devblock.hpp"
 #include "work2/matrix/matrix_ops.hpp"
@@ -100,9 +100,9 @@ class DeviceMatrix final {
 
     auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
 
-    OpImplBundleT<ScalarT>::multiplies(_view, matrix._view, result._view);
+    OpImplBundleT<ScalarT>::multiplies(result._view, _view, matrix._view);
     return result;
   }
 };
 
-#endif  // _MATRIX_CUH_
+#endif  // _MATRIX_HPP_

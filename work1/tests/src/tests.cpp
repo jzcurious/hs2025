@@ -21,7 +21,7 @@ class VAddTest : public ::testing::TestWithParam<std::pair<std::uint32_t, float>
     cudaMemcpy(d_a, a.data(), size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b.data(), size, cudaMemcpyHostToDevice);
 
-    w1::vadd_f32(d_a, d_b, d_c, len);
+    w1::vadd_f32(d_c, d_a, d_b, len);
 
     auto hd_c = Eigen::VectorXf(len);
 

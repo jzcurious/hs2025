@@ -3,7 +3,7 @@
 
 #include <cuda_runtime.h>
 
-#include "work2/matrix/matrix.cuh"
+#include "work2/matrix/matrix.hpp"
 #include "work2/mm_impls/op_impl_bundle_kind.hpp"
 
 #include <Eigen/Dense>

@@ -13,7 +13,7 @@ template <MatrixViewKind MatrixT,
     std::uint32_t wmma_m = 16,
     std::uint32_t wmma_n = 16,
     std::uint32_t wmma_k = 16>
-__global__ void kernel_mm_wmma(const MatrixT a, const MatrixT b, MatrixT c) {
+__global__ void kernel_mm_wmma(MatrixT c, const MatrixT a, const MatrixT b) {
   using scalar_t = typename MatrixT::scalar_t;
 
   using layout_t_ = std::conditional_t<colmajor, wmma::col_major, wmma::row_major>;

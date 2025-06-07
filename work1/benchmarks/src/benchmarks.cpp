@@ -34,7 +34,7 @@ static void BM_OurVectorAddGPU(benchmark::State& state) {
 
     {
       CUDATimer timer(elapsed_time);
-      w1::vadd_f32(d_a, d_b, d_c, len);
+      w1::vadd_f32(d_c, d_a, d_b, len);
     }
 
     benchmark::DoNotOptimize(elapsed_time);
@@ -69,7 +69,7 @@ static void BM_OurVectorAddGPUCopyOverhead(benchmark::State& state) {
       CUDATimer timer(elapsed_time);
       cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice);
       cudaMemcpy(d_b, h_b, size, cudaMemcpyHostToDevice);
-      w1::vadd_f32(d_a, d_b, d_c, len);
+      w1::vadd_f32(d_c, d_a, d_b, len);
       cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost);
     }
 

@@ -2,7 +2,7 @@
 #define _MATRIX_VIEW_CUH_
 
 #include "work2/matrix/hd_attr.cuh"
-#include "work2/matrix/scalar_kind.cuh"
+#include "work2/matrix/scalar_kind.hpp"
 
 #include <cstdint>
 

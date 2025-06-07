@@ -8,7 +8,7 @@
 #include <type_traits>
 
 template <MatrixViewKind MatrixT>
-__global__ void kernel_mm_naive(const MatrixT a, const MatrixT b, MatrixT c) {
+__global__ void kernel_mm_naive(MatrixT c, const MatrixT a, const MatrixT b) {
   using scalar_t = typename MatrixT::scalar_t;
   using acc_t = std::conditional_t<std::is_same_v<scalar_t, half>, float, scalar_t>;
 

@@ -6,7 +6,7 @@
 
 template <std::floating_point ScalarT>
 __global__ void kernel_vadd(
-    const ScalarT* a, const ScalarT* b, ScalarT* c, std::uint32_t len) {
+    ScalarT* c, const ScalarT* a, const ScalarT* b, std::uint32_t len) {
   std::uint32_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < len) c[i] = a[i] + b[i];
 }

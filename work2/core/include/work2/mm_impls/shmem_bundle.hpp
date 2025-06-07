@@ -9,10 +9,10 @@ struct OpImplBundleShmem {
 
   using scalar_t = ScalarT;
 
-  static MatrixView<ScalarT>& multiplies(const MatrixView<ScalarT>& a,
-      const MatrixView<ScalarT>& b,
-      MatrixView<ScalarT>& c) {
-    return w2::matmul_shmem(a, b, c);
+  static MatrixView<ScalarT>& multiplies(MatrixView<ScalarT>& c,
+      const MatrixView<ScalarT>& a,
+      const MatrixView<ScalarT>& b) {
+    return w2::matmul_shmem(c, a, b);
   }
 
   // NOTE: You can add other operator implementations here, such as plus, minus, etc.

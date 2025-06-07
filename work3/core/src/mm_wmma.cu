@@ -7,7 +7,7 @@
 
 template <ScalarKind ScalarT>  // TODO: add wmma tile size
 MatrixView<ScalarT>& w3::matmul_wmma(
-    const MatrixView<ScalarT>& a, const MatrixView<ScalarT>& b, MatrixView<ScalarT>& c) {
+    MatrixView<ScalarT>& c, const MatrixView<ScalarT>& a, const MatrixView<ScalarT>& b) {
   constexpr const dim3 block_size = {32, 1};
   constexpr const dim3 wmma_size = {16, 16, 16};
 
@@ -18,12 +18,12 @@ MatrixView<ScalarT>& w3::matmul_wmma(
 
   if (a.colmajor) {
     kernel_mm_wmma<MatrixView<ScalarT>, true, wmma_size.x, wmma_size.y, wmma_size.z>
-        <<<grid_size, block_size>>>(a, b, c);
+        <<<grid_size, block_size>>>(c, a, b);
     return c;
   }
 
   kernel_mm_wmma<MatrixView<ScalarT>, false, wmma_size.x, wmma_size.y, wmma_size.z>
-      <<<grid_size, block_size>>>(a, b, c);
+      <<<grid_size, block_size>>>(c, a, b);
   return c;
 }
 

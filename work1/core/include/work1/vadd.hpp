@@ -5,7 +5,7 @@
 
 namespace w1 {
 
-void vadd_f32(const float* a, const float* b, float* c, std::uint32_t len);
+void vadd_f32(float* c, const float* a, const float* b, std::uint32_t len);
 
 }  // namespace w1
 

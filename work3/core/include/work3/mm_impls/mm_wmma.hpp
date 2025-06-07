@@ -7,7 +7,7 @@ namespace w3 {
 
 template <ScalarKind ScalarT>
 MatrixView<ScalarT>& matmul_wmma(
-    const MatrixView<ScalarT>& a, const MatrixView<ScalarT>& b, MatrixView<ScalarT>& c);
+    MatrixView<ScalarT>& c, const MatrixView<ScalarT>& a, const MatrixView<ScalarT>& b);
 
 }  // namespace w3
 

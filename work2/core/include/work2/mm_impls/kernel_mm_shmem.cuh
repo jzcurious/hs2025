@@ -7,7 +7,7 @@
 #include <cuda_fp16.h>
 
 template <std::uint32_t tile_side_len, MatrixViewKind MatrixT>
-__global__ void kernel_mm_shmem(const MatrixT a, const MatrixT b, MatrixT c) {
+__global__ void kernel_mm_shmem(MatrixT c, const MatrixT a, const MatrixT b) {
   using scalar_t = typename MatrixT::scalar_t;
 
   __shared__ scalar_t tile_a[tile_side_len][tile_side_len];
