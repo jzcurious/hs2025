@@ -70,6 +70,14 @@ class MatrixView final {
     return axis ? _ncols : _mrows;
   }
 
+  __hd__ std::uint32_t mrows() const {
+    return _mrows;
+  }
+
+  __hd__ std::uint32_t ncols() const {
+    return _ncols;
+  }
+
   __hd__ std::uint32_t numel() const {
     return _ncols * _mrows;
   }

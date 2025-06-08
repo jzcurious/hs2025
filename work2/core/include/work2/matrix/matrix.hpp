@@ -2,23 +2,33 @@
 #define _MATRIX_HPP_
 
 #include "work2/matrix/devblock.hpp"
+#include "work2/matrix/matrix_expr.hpp"
+#include "work2/matrix/matrix_expr_kind.hpp"
 #include "work2/matrix/matrix_ops.hpp"
 #include "work2/matrix/matrix_view.cuh"
-#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+#include "work2/mm_impls/op_bundle_kind.hpp"
 
-template <template <class> class OpImplBundleT, ScalarKind ScalarT>
-  requires OpImplBundleKind<OpImplBundleT, ScalarT>
+template <template <class> class OpBundleT, ScalarKind ScalarT>
+  requires OpBundleKind<OpBundleT, ScalarT>
 class DeviceMatrix final {
  private:
   DeviceBlock<ScalarT> _block;
   MatrixView<ScalarT> _view;
-  MatrixOps _ops;
+
+  template <class FuncT>
+  using MatrixExprBinary
+      = MatrixExpr<FuncT, MatrixView<ScalarT>, MatrixView<ScalarT>, MatrixView<ScalarT>>;
+
+  DeviceMatrix(const MatrixView<ScalarT>& view)
+      : _block((view.mrows() + view.vpad()) * (view.ncols() + view.hpad()))
+      , _view(view) {
+    if (_view.vpad() or _view.hpad()) _block.memset(0);
+  }
 
  public:
   DeviceMatrix(std::uint32_t mrows, std::uint32_t ncols, MatrixOps ops = MatrixOps{})
-      : _block((ncols + ops.hpad_) * (mrows + ops.vpad_))
-      , _view(_block, mrows, ncols, ops.colmajor_, ops.vpad_, ops.hpad_)
-      , _ops(ops) {
+      : _block((mrows + ops.vpad_) * (ncols + ops.hpad_))
+      , _view(_block, mrows, ncols, ops.colmajor_, ops.vpad_, ops.hpad_) {
     if (ops.vpad_ or ops.hpad_) {
       _block.memset(0);  // NOTE: It's stupid, but I'm too lazy to do it any other way.
                          // You can fix it.
@@ -28,10 +38,16 @@ class DeviceMatrix final {
 
   DeviceMatrix(DeviceMatrix&& matrix)
       : _block(std::move(matrix._block))
-      , _view(matrix._view)
-      , _ops(matrix._ops) {}
+      , _view(matrix._view) {}
 
   DeviceMatrix(const DeviceMatrix& matrix) = delete;
+
+  template <MatrixExprKind ExprT>
+  DeviceMatrix(ExprT&& expr)
+      : DeviceMatrix(expr.required_result_view()) {
+    expr.eval(_view);
+  }
+
   DeviceMatrix& operator=(const DeviceMatrix&) = delete;
 
   std::uint32_t size(std::uint8_t axis) const {
@@ -90,18 +106,19 @@ class DeviceMatrix final {
     _block.copy_to_host(host_ptr, _view.numel());
   }
 
-  DeviceMatrix operator*(const DeviceMatrix& matrix) const {
-    /* NOTE: You can add a check for matrix commutativity (`size(1) == matrix.size(0)`),
-     * but I'm too lazy to do it. */
+  auto operator*(const DeviceMatrix& matrix) const {
+    MatrixView<ScalarT> result_view(nullptr,
+        size(0),
+        matrix.size(1),
+        _view.colmajor,
+        _view.vpad(),
+        matrix._view.hpad());
 
-    auto result_mrows = size(0);
-    auto result_ncols = matrix.size(1);
-    auto result_ops = _ops.like().hpad(matrix._view.hpad());
+    using multiplies_expr_t
+        = MatrixExprBinary<std::decay_t<decltype(OpBundleT<ScalarT>::multiplies)>>;
 
-    auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
-
-    OpImplBundleT<ScalarT>::multiplies(result._view, _view, matrix._view);
-    return result;
+    return multiplies_expr_t(
+        OpBundleT<ScalarT>::multiplies, result_view, _view, matrix._view);
   }
 };
 

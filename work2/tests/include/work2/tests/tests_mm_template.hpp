@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 
 #include "work2/matrix/matrix.hpp"
-#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+#include "work2/mm_impls/op_bundle_kind.hpp"
 
 #include <Eigen/Dense>
 #include <cstdint>
@@ -36,7 +36,7 @@ inline void PrintTo(const MatMulTestParams& params, std::ostream* os) {
 }
 
 template <template <typename> class OpImplBundleT, ScalarKind ScalarT>
-  requires OpImplBundleKind<OpImplBundleT, ScalarT>
+  requires OpBundleKind<OpImplBundleT, ScalarT>
 class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
  private:
   using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
@@ -53,7 +53,7 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
         m, k, MatrixOps{}.colmajor(colmajor).tile(tm, tn, m, k).src(h_a.data()));
     auto d_b = matrix_t(
         k, n, MatrixOps{}.colmajor(colmajor).tile(tm, tn, k, n).src(h_b.data()));
-    auto d_c = d_a * d_b;
+    decltype(d_a) d_c = d_a * d_b;
 
     EigenMatrix hd_c = EigenMatrix(m, n);
     d_c.copy_data_to_host(hd_c.data());

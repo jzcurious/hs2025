@@ -4,16 +4,17 @@
 #include "work2/mm_impls/mm_naive.hpp"
 
 template <ScalarKind ScalarT>
-struct OpImplBundleNaive {
+struct OpBundleNaive {
   struct op_impl_feature_t {};
 
   using scalar_t = ScalarT;
 
-  static MatrixView<ScalarT>& multiplies(MatrixView<ScalarT>& c,
-      const MatrixView<ScalarT>& a,
-      const MatrixView<ScalarT>& b) {
+  static constexpr auto multiplies
+      = [](MatrixView<ScalarT>& c,
+            const MatrixView<ScalarT>& a,
+            const MatrixView<ScalarT>& b) -> MatrixView<ScalarT>& {
     return w2::matmul_naive(c, a, b);
-  }
+  };
 
   // NOTE: You can add other operator implementations here, such as plus, minus, etc.
 };

@@ -4,10 +4,17 @@
 #include "work2/mm_impls/mm_shmem.hpp"
 
 template <ScalarKind ScalarT>
-struct OpImplBundleShmem {
+struct OpBundleShmem {
   struct op_impl_feature_t {};
 
   using scalar_t = ScalarT;
+
+  // static constexpr auto multiplies
+  //     = [](MatrixView<ScalarT>& c,
+  //           const MatrixView<ScalarT>& a,
+  //           const MatrixView<ScalarT>& b) -> MatrixView<ScalarT>& {
+  //   return w2::matmul_shmem(c, a, b);
+  // };
 
   static MatrixView<ScalarT>& multiplies(MatrixView<ScalarT>& c,
       const MatrixView<ScalarT>& a,

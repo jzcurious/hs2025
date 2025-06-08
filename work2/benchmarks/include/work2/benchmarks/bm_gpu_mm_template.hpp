@@ -3,14 +3,14 @@
 
 #include "work2/matrix/matrix.hpp"
 #include "work2/matrix/scalar_kind.hpp"
-#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+#include "work2/mm_impls/op_bundle_kind.hpp"
 
 #include "cuda_timer.hpp"
 
 #include <benchmark/benchmark.h>
 
 template <template <typename> class OpImplBundleT, ScalarKind ScalarT, bool colmajor>
-  requires OpImplBundleKind<OpImplBundleT, ScalarT>
+  requires OpBundleKind<OpImplBundleT, ScalarT>
 void BM_GPUMMTemplate(benchmark::State& state) {
   using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
   auto mrows_ncols = state.range(0);
@@ -23,7 +23,7 @@ void BM_GPUMMTemplate(benchmark::State& state) {
 
     {
       CUDATimer timer(elapsed_time);
-      auto c = a * b;
+      decltype(a) c = a * b;
     }
 
     benchmark::DoNotOptimize(elapsed_time);
