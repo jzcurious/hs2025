@@ -4,7 +4,7 @@
 #include "work2/mm_impls/mm_naive.hpp"
 
 template <ScalarKind ScalarT>
-struct OpImplBundleNaive {
+struct OpBundleNaive {
   struct op_impl_feature_t {};
 
   using scalar_t = ScalarT;

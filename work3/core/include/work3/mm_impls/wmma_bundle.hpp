@@ -4,7 +4,7 @@
 #include "work3/mm_impls/mm_wmma.hpp"
 
 template <ScalarKind ScalarT>
-struct OpImplBundleWmma {
+struct OpBundleWmma {
   struct op_impl_feature_t {};
 
   using scalar_t = ScalarT;

@@ -27,16 +27,16 @@ BENCHMARK(BM_MatMulCPU)
     ->UseRealTime()
     ->MeasureProcessCPUTime();
 
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, false)
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpBundleNaive, float, false)
     ->Name("CUDA MM (Naive, float, row-major)");
 
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleNaive, float, true)
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpBundleNaive, float, true)
     ->Name("CUDA MM (Naive, float, col-major)");
 
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, false)
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpBundleShmem, float, false)
     ->Name("CUDA MM (Shared Memory, float, row-major)");
 
-BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpImplBundleShmem, float, true)
+BENCHMARK_GPU_MM_TEMPLATE_PRESET_1(OpBundleShmem, float, true)
     ->Name("CUDA MM (Shared Memory, float, col-major)");
 
 BENCHMARK_MAIN();

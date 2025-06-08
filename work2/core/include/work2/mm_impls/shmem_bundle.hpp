@@ -4,7 +4,7 @@
 #include "work2/mm_impls/mm_shmem.hpp"
 
 template <ScalarKind ScalarT>
-struct OpImplBundleShmem {
+struct OpBundleShmem {
   struct op_impl_feature_t {};
 
   using scalar_t = ScalarT;

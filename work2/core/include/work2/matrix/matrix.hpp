@@ -4,10 +4,10 @@
 #include "work2/matrix/devblock.hpp"
 #include "work2/matrix/matrix_ops.hpp"
 #include "work2/matrix/matrix_view.cuh"
-#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+#include "work2/mm_impls/op_bundle_kind.hpp"
 
-template <template <class> class OpImplBundleT, ScalarKind ScalarT>
-  requires OpImplBundleKind<OpImplBundleT, ScalarT>
+template <template <class> class OpBundleT, ScalarKind ScalarT>
+  requires OpBundleKind<OpBundleT, ScalarT>
 class DeviceMatrix final {
  private:
   DeviceBlock<ScalarT> _block;
@@ -100,7 +100,7 @@ class DeviceMatrix final {
 
     auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
 
-    OpImplBundleT<ScalarT>::multiplies(result._view, _view, matrix._view);
+    OpBundleT<ScalarT>::multiplies(result._view, _view, matrix._view);
     return result;
   }
 };

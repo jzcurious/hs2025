@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 
 #include "work2/matrix/matrix.hpp"
-#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+#include "work2/mm_impls/op_bundle_kind.hpp"
 
 #include <Eigen/Dense>
 #include <cstdint>
@@ -35,11 +35,11 @@ inline void PrintTo(const MatMulTestParams& params, std::ostream* os) {
   if (tm > 1 or tn > 1) *os << "_tile" << tm << "x" << tn;
 }
 
-template <template <typename> class OpImplBundleT, ScalarKind ScalarT>
-  requires OpImplBundleKind<OpImplBundleT, ScalarT>
+template <template <typename> class OpBundleT, ScalarKind ScalarT>
+  requires OpBundleKind<OpBundleT, ScalarT>
 class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
  private:
-  using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
+  using matrix_t = DeviceMatrix<OpBundleT, ScalarT>;
 
   template <class EigenMatrix>
   bool matmul_test_template_(const MatMulTestParams& params) {

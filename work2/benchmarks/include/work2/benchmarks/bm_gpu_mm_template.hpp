@@ -3,16 +3,16 @@
 
 #include "work2/matrix/matrix.hpp"
 #include "work2/matrix/scalar_kind.hpp"
-#include "work2/mm_impls/op_impl_bundle_kind.hpp"
+#include "work2/mm_impls/op_bundle_kind.hpp"
 
 #include "cuda_timer.hpp"
 
 #include <benchmark/benchmark.h>
 
-template <template <typename> class OpImplBundleT, ScalarKind ScalarT, bool colmajor>
-  requires OpImplBundleKind<OpImplBundleT, ScalarT>
+template <template <typename> class OpBundleT, ScalarKind ScalarT, bool colmajor>
+  requires OpBundleKind<OpBundleT, ScalarT>
 void BM_GPUMMTemplate(benchmark::State& state) {
-  using matrix_t = DeviceMatrix<OpImplBundleT, ScalarT>;
+  using matrix_t = DeviceMatrix<OpBundleT, ScalarT>;
   auto mrows_ncols = state.range(0);
 
   auto a = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
