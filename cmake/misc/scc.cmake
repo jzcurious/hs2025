@@ -28,7 +28,7 @@ endif()
 
 execute_process(
     COMMAND ${SCC_EXE}
-        "--cocomo-project-type" "custom,3.0,1.12,2.5,0.32"
+        "--cocomo-project-type" "custom,2.4,1.05,2.5,0.38"
         ${CMAKE_CURRENT_SOURCE_DIR}
     WORKING_DIRECTORY ${SCC_INSTALL_DIR}
     RESULT_VARIABLE scc_result
