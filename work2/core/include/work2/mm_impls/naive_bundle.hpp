@@ -2,22 +2,13 @@
 #define _NAIVE_BUNDLE_HPP_
 
 #include "work2/mm_impls/mm_naive.hpp"
+#include "work2/mm_impls/op_bundle.hpp"
 
-template <ScalarKind ScalarT>
-struct OpBundleNaive {
-  struct op_impl_feature_t {};
-
-  using scalar_t = ScalarT;
-
-  using result_t = MatrixView<ScalarT>;
-
-  static MatrixView<ScalarT>& mul(MatrixView<ScalarT>& c,
-      const MatrixView<ScalarT>& a,
-      const MatrixView<ScalarT>& b) {
-    return w2::matmul_naive(c, a, b);
-  }
-
-  // NOTE: You can add other operator implementations here, such as plus, minus, etc.
+// clang-format off
+MAKE_BUNDLE(OpBundleNaive) {
+  BUNDLE_REGISTER_IMPLEMENTED_BINARY(matmul, w2::matmul_naive);
 };
+
+// clang-format on
 
 #endif  // _NAIVE_BUNDLE_HPP_

@@ -24,8 +24,11 @@ concept OpBundleKind = requires {
   typename U<T>::scalar_t;
   typename U<T>::result_t;
 } and requires() {
+  REQUIRES_BINARY_OP(add);
+  REQUIRES_BINARY_OP(sub);
   REQUIRES_BINARY_OP(mul);
-  // REQUIRES_BINARY_OP(add);
+  REQUIRES_BINARY_OP(div);
+  REQUIRES_BINARY_OP(matmul);
 };
 
 #undef REQUIRES_BINARY_OP

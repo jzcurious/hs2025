@@ -100,7 +100,7 @@ class DeviceMatrix final {
 
     auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
 
-    OpBundleT<ScalarT>::mul(result._view, _view, matrix._view);
+    OpBundleT<ScalarT>::matmul(result._view, _view, matrix._view);
     return result;
   }
 };
