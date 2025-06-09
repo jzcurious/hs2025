@@ -9,7 +9,9 @@ struct OpBundleShmem {
 
   using scalar_t = ScalarT;
 
-  static MatrixView<ScalarT>& multiplies(MatrixView<ScalarT>& c,
+  using result_t = MatrixView<ScalarT>;
+
+  static MatrixView<ScalarT>& mul(MatrixView<ScalarT>& c,
       const MatrixView<ScalarT>& a,
       const MatrixView<ScalarT>& b) {
     return w2::matmul_shmem(c, a, b);

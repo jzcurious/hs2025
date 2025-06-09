@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(work2_core LANGUAGES CXX CUDA)
+project(work4_core LANGUAGES CXX CUDA)
 
 include(../../cmake/configs/cuda_arch.cmake)
 
@@ -12,30 +12,32 @@ file(GLOB_RECURSE SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
-add_library(work2_core SHARED ${SRC})
-add_library(work2::core ALIAS work2_core)
+add_library(work4_core SHARED ${SRC})
+add_library(work4::core ALIAS work4_core)
 
-set_target_properties(work2_core PROPERTIES
+set_target_properties(work4_core PROPERTIES
     CUDA_RUNTIME_LIBRARY Shared
     CUDA_SEPARABLE_COMPILATION ON
 )
 
-set_target_minimum_cuda_arch(work2_core 75)
+set_target_minimum_cuda_arch(work4_core 75)
 
-target_compile_features(work2_core PRIVATE
+target_compile_features(work4_core PRIVATE
     cxx_std_20
     cuda_std_20
 )
 
-target_compile_options(work2_core PRIVATE
+target_compile_options(work4_core PRIVATE
     -Wall -O3
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr -Wno-deprecated-gpu-targets>
 )
 
-target_include_directories(work2_core PUBLIC
+target_include_directories(work4_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
 
-target_link_libraries(work2_core PRIVATE
+target_link_libraries(work4_core PRIVATE
+    work2::core
+    work3::core
     work1::cudagh
 )
