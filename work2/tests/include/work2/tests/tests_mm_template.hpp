@@ -77,13 +77,13 @@ class MatMulTest : public ::testing::TestWithParam<MatMulTestParams> {
  private:
   using matrix_t = DeviceMatrix<OpBundleT, ScalarT>;
 
-  template <class EigenMatrix>
+  template <class EigenMatrixT>
   bool matmul_test_template_(const MatMulTestParams& params) {
     auto [_0, _1, colmajor, m, n, k, tm, tn, tol] = params;
 
-    EigenMatrix h_a = EigenMatrix::Random(m, k);
-    EigenMatrix h_b = EigenMatrix::Random(k, n);
-    EigenMatrix h_c = h_a * h_b;
+    EigenMatrixT h_a = EigenMatrixT::Random(m, k);
+    EigenMatrixT h_b = EigenMatrixT::Random(k, n);
+    EigenMatrixT h_c = h_a * h_b;
 
     auto d_a = matrix_t(
         m, k, MatrixOptions{}.colmajor(colmajor).tile(tm, tn, m, k).src(h_a.data()));

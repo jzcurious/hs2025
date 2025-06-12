@@ -15,7 +15,7 @@ MatrixView<ScalarT>& w4::add(
       cudagh::cover(a.size(0), block_size.y),
   };
 
-  if (b.size(0) == 1)
+  if (a.size(0) > b.size(0))
     kernel_broadcast_add<<<grid_size, block_size>>>(c, a, b);
   else
     kernel_add<<<grid_size, block_size>>>(c, a, b);
