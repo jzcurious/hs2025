@@ -21,7 +21,7 @@ DeviceMatrix<OpBundleT, ScalarT> operator+(const DeviceMatrix<OpBundleT, ScalarT
 
   if (a.size(0) == 1) return b + a;
 
-  auto c = DeviceMatrix<OpBundleT, ScalarT>(a.size(0), a.size(1));
+  auto c = DeviceMatrix<OpBundleT, ScalarT>(a.size(0), a.size(1), a.ops());
   OpBundleT<ScalarT>::add(c.view(), a.view(), b.view());
   return c;
 }

@@ -21,6 +21,14 @@ using LinearTestParams = std::tuple<
 >;
 // clang-format on
 
+inline void PrintTo(const LinearTestParams& params, std::ostream* os) {
+  auto [_, blame, colmajor, m, n, k, tm, tn, tol] = params;
+  *os << blame << (colmajor ? "_colmajor" : "_rowmajor") << "_m" + std::to_string(m)
+      << "_n" << std::to_string(n) << "_k" << std::to_string(k);
+
+  if (tm > 1 or tn > 1) *os << "_tile" << tm << "x" << tn;
+}
+
 template <template <typename> class OpBundleT, ScalarKind ScalarT>
   requires OpBundleKind<OpBundleT, ScalarT>
 class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
