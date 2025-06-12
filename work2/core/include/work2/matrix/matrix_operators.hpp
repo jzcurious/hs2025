@@ -19,11 +19,13 @@ template <template <class> class OpBundleT, ScalarKind ScalarT>
 DeviceMatrix<OpBundleT, ScalarT> operator+(const DeviceMatrix<OpBundleT, ScalarT>& a,
     const DeviceMatrix<OpBundleT, ScalarT>& b) {
 
-  if (a.size(0) == 1) return b + a;
+  if (a.size(0) >= b.size(0) and a.size(1) == b.size(1)) {
+    auto c = DeviceMatrix<OpBundleT, ScalarT>(a.size(0), a.size(1), a.ops());
+    OpBundleT<ScalarT>::add(c.view(), a.view(), b.view());
+    return c;
+  }
 
-  auto c = DeviceMatrix<OpBundleT, ScalarT>(a.size(0), a.size(1), a.ops());
-  OpBundleT<ScalarT>::add(c.view(), a.view(), b.view());
-  return c;
+  return b + a;
 }
 
 #endif  // _MATRIX_OPERATORS_HPP_

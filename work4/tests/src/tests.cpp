@@ -42,8 +42,7 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
     EigenMatrix h_x = EigenMatrix::Random(m, k);
     EigenMatrix h_w = EigenMatrix::Random(k, n);
     EigenMatrix h_b = EigenMatrix::Random(1, n);
-    EigenMatrix h_y = h_x * h_w;
-    // EigenMatrix h_y = h_x * h_w + h_b;
+    EigenMatrix h_y = h_x * h_w + h_b;
 
     auto d_x = matrix_t(
         m, k, MatrixOptions{}.colmajor(colmajor).tile(tm, tn, m, k).src(h_x.data()));
@@ -54,7 +53,6 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
     auto d_b = matrix_t(
         1, n, MatrixOptions{}.colmajor(colmajor).tile(tm, tn, 1, n).src(h_b.data()));
 
-    // auto d_y = d_x * d_w + d_b;
     auto d_y = d_x * d_w;
 
     return is_approx_eigen(d_y, h_y, tol);
