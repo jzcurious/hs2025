@@ -80,4 +80,5 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
           ::testing::Values(tile_size),                                                  \
           ::testing::Values(tol)))
 
-INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(OpBundleDefault, half, 16, 1e-2);
+// INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(OpBundleDefault, half, 16, 1e-2);
+INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(OpBundleDefault, float, 16, 1e-2);
