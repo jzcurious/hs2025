@@ -42,8 +42,7 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
     EigenMatrixT h_x = EigenMatrixT::Random(m, k);
     EigenMatrixT h_w = EigenMatrixT::Random(k, n);
     EigenMatrixT h_b = EigenMatrixT::Random(1, n);
-    EigenMatrixT h_y = h_x * h_w;
-    h_y += h_b;
+    EigenMatrixT h_y = h_x * h_w + h_b.replicate(m, 1);
 
     auto d_x = matrix_t(
         m, k, MatrixOptions{}.colmajor(colmajor).tile(tm, tn, m, k).src(h_x.data()));
