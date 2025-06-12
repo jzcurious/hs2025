@@ -2,7 +2,7 @@
 #define _MATRIX_HPP_
 
 #include "work2/matrix/devblock.hpp"
-#include "work2/matrix/matrix_ops.hpp"
+#include "work2/matrix/matrix_options.hpp"
 #include "work2/matrix/matrix_view.cuh"
 #include "work2/mm_impls/op_bundle_kind.hpp"
 
@@ -12,10 +12,15 @@ class DeviceMatrix final {
  private:
   DeviceBlock<ScalarT> _block;
   MatrixView<ScalarT> _view;
-  MatrixOps _ops;
+  MatrixOptions _ops;
 
  public:
-  DeviceMatrix(std::uint32_t mrows, std::uint32_t ncols, MatrixOps ops = MatrixOps{})
+  struct matrix_f {};
+
+  using scalar_t = ScalarT;
+
+  DeviceMatrix(
+      std::uint32_t mrows, std::uint32_t ncols, MatrixOptions ops = MatrixOptions{})
       : _block((ncols + ops.hpad_) * (mrows + ops.vpad_))
       , _view(_block, mrows, ncols, ops.colmajor_, ops.vpad_, ops.hpad_)
       , _ops(ops) {
@@ -58,6 +63,10 @@ class DeviceMatrix final {
     return _view;
   }
 
+  MatrixOptions ops() const {
+    return _ops.like();
+  }
+
   void copy_data_from_host(const void* host_ptr) {
     if (_view.hpad() and not _view.colmajor) {
       _block.copy_from_host_2d(
@@ -74,7 +83,7 @@ class DeviceMatrix final {
     _block.copy_from_host(host_ptr, _view.numel());
   }
 
-  void copy_data_to_host(void* host_ptr) {
+  void copy_data_to_host(void* host_ptr) const {
     if (_view.hpad() and not _view.colmajor) {
       _block.copy_to_host_2d(
           host_ptr, _view.size(1), _view.ldim(), _view.size(1), _view.size(0));
@@ -88,20 +97,6 @@ class DeviceMatrix final {
     }
 
     _block.copy_to_host(host_ptr, _view.numel());
-  }
-
-  DeviceMatrix operator*(const DeviceMatrix& matrix) const {
-    /* NOTE: You can add a check for matrix commutativity (`size(1) == matrix.size(0)`),
-     * but I'm too lazy to do it. */
-
-    auto result_mrows = size(0);
-    auto result_ncols = matrix.size(1);
-    auto result_ops = _ops.like().hpad(matrix._view.hpad());
-
-    auto result = DeviceMatrix(result_mrows, result_ncols, result_ops);
-
-    OpBundleT<ScalarT>::matmul(result._view, _view, matrix._view);
-    return result;
   }
 };
 

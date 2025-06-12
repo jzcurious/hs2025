@@ -88,7 +88,7 @@ class DeviceBlock {
       std::size_t dpitch,
       std::size_t spitch,
       std::size_t width,
-      std::size_t height) {
+      std::size_t height) const {
     cudaMemcpy2D(host_ptr,
         dpitch * item_size,
         _ptr,
@@ -102,7 +102,7 @@ class DeviceBlock {
       std::size_t dpitch,
       std::size_t spitch,
       std::size_t width,
-      std::size_t height) {
+      std::size_t height) const {
     cudaMemcpy2D(device_ptr,
         dpitch * item_size,
         _ptr,

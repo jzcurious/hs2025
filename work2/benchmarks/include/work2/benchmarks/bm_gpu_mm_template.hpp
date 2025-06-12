@@ -2,6 +2,7 @@
 #define _BM_GPU_MM_TEMPLATE_HPP_
 
 #include "work2/matrix/matrix.hpp"
+#include "work2/matrix/matrix_operators.hpp"  // IWYU pragma: keep
 #include "work2/matrix/scalar_kind.hpp"
 #include "work2/mm_impls/op_bundle_kind.hpp"
 

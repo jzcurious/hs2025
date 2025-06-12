@@ -1,36 +1,36 @@
-#include "work2/matrix/matrix_ops.hpp"
+#include "work2/matrix/matrix_options.hpp"
 
-MatrixOps& MatrixOps::vpad(std::uint32_t pad) {
+MatrixOptions& MatrixOptions::vpad(std::uint32_t pad) {
   vpad_ = pad;
   return *this;
 }
 
-MatrixOps& MatrixOps::hpad(std::uint32_t pad) {
+MatrixOptions& MatrixOptions::hpad(std::uint32_t pad) {
   hpad_ = pad;
   return *this;
 }
 
-MatrixOps& MatrixOps::colmajor(bool val) {
+MatrixOptions& MatrixOptions::colmajor(bool val) {
   colmajor_ = val;
   return *this;
 }
 
-MatrixOps& MatrixOps::colmajor() {
+MatrixOptions& MatrixOptions::colmajor() {
   colmajor_ = true;
   return *this;
 }
 
-MatrixOps& MatrixOps::rowmajor() {
+MatrixOptions& MatrixOptions::rowmajor() {
   colmajor_ = false;
   return *this;
 }
 
-MatrixOps& MatrixOps::src(void* host_ptr) {
+MatrixOptions& MatrixOptions::src(void* host_ptr) {
   src_ = host_ptr;
   return *this;
 }
 
-MatrixOps& MatrixOps::tile(std::uint32_t tile_mrows,
+MatrixOptions& MatrixOptions::tile(std::uint32_t tile_mrows,
     std::uint32_t tile_ncols,
     std::uint32_t mrows,
     std::uint32_t ncols) {
@@ -48,6 +48,6 @@ MatrixOps& MatrixOps::tile(std::uint32_t tile_mrows,
   return *this;
 }
 
-MatrixOps MatrixOps::like() const {
-  return MatrixOps{*this}.src(nullptr);
+MatrixOptions MatrixOptions::like() const {
+  return MatrixOptions{*this}.src(nullptr);
 }

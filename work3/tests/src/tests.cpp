@@ -3,8 +3,8 @@
 
 #include <cuda_fp16.h>
 
-INSTANTIATE_TEST_SUITE_FOR_TYPE_TILING(OpBundleWmma, half, 16, 1e-2);
+INSTANTIATE_MM_TEST_SUITE_FOR_TYPE_TILING(OpBundleWmma, half, 16, 1e-2);
 
 #if __CUDA_ARCH__ >= 800
-INSTANTIATE_TEST_SUITE_FOR_TYPE_TILING(OpBundleWmma, float, 16, 1e-5);
+INSTANTIATE_MM_TEST_SUITE_FOR_TYPE_TILING(OpBundleWmma, float, 16, 1e-5);
 #endif
