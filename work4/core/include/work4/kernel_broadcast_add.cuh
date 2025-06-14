@@ -6,7 +6,7 @@
 #include <cstdint>
 
 template <MatrixViewKind MatrixT>
-__global__ void kernel_broadcast_add(MatrixT& c, const MatrixT& a, const MatrixT& b) {
+__global__ void kernel_broadcast_add(MatrixT c, const MatrixT a, const MatrixT b) {
   const std::uint32_t i = blockDim.y * blockIdx.y + threadIdx.y;
   const std::uint32_t j = blockDim.x * blockIdx.x + threadIdx.x;
 
