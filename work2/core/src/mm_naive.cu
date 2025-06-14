@@ -1,5 +1,5 @@
+#include "work2/mm_impls/dispatch_binary.hpp"
 #include "work2/mm_impls/kernel_mm_naive.cuh"
-#include "work2/mm_impls/mm_dispatch.hpp"
 #include "work2/mm_impls/mm_naive.hpp"
 
 #include "cudagh.hpp"
@@ -18,4 +18,4 @@ MatrixView<ScalarT>& w2::matmul_naive(
   return c;
 }
 
-MM_DISPATCH_FOR_ALL_SUPPORTED_TYPES(w2::matmul_naive);
+DISPATCH_BINARY_FOR_ALL_TYPES(w2::matmul_naive);

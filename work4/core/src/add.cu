@@ -1,3 +1,4 @@
+#include "work2/mm_impls/dispatch_binary.hpp"
 #include "work4/add.hpp"
 #include "work4/kernel_add.cuh"
 #include "work4/kernel_broadcast_add.cuh"
@@ -23,11 +24,4 @@ MatrixView<ScalarT>& w4::add(
   return c;
 }
 
-#define ADD_DISPATCH(scalar_type)                                                        \
-  template MatrixView<scalar_type>& w4::add(MatrixView<scalar_type>& c,                  \
-      const MatrixView<scalar_type>& a,                                                  \
-      const MatrixView<scalar_type>& b)
-
-ADD_DISPATCH(float);
-ADD_DISPATCH(double);
-ADD_DISPATCH(half);
+DISPATCH_BINARY_FOR_ALL_TYPES(w4::add);

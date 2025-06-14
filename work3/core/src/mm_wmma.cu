@@ -1,7 +1,7 @@
 #include "work3/mm_impls/kernel_mm_wmma.cuh"
 #include "work3/mm_impls/mm_wmma.hpp"
 
-#include "work2/mm_impls/mm_dispatch.hpp"
+#include "work2/mm_impls/dispatch_binary.hpp"
 
 #include "cudagh.hpp"
 
@@ -27,8 +27,8 @@ MatrixView<ScalarT>& w3::matmul_wmma(
   return c;
 }
 
-MM_DISPATCH(w3::matmul_wmma, half);
+DISPATCH_BINARY(w3::matmul_wmma, half);
 
 #if __CUDA_ARCH__ >= 800
-MM_DISPATCH(w4::matmul_wmma, float);
+DISPATCH_BINARY(w4::matmul_wmma, float);
 #endif
