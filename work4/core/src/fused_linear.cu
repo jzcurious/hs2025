@@ -1,3 +1,4 @@
+#include "work2/matrix/matrix_view.cuh"
 #include "work4/dispatch_ternary.hpp"
 #include "work4/fused_linear.hpp"
 #include "work4/kernel_linear.cuh"
@@ -5,7 +6,7 @@
 #include "cudagh.hpp"
 
 template <ScalarKind ScalarT>
-MatrixView<ScalarT>& internal::fused_linear(MatrixView<ScalarT>& y,
+MatrixView<ScalarT>& fused_linear(MatrixView<ScalarT>& y,
     const MatrixView<ScalarT>& x,
     const MatrixView<ScalarT>& w,
     const MatrixView<ScalarT>& b) {
@@ -28,8 +29,8 @@ MatrixView<ScalarT>& internal::fused_linear(MatrixView<ScalarT>& y,
   return y;
 }
 
-DISPATCH_TERNARY(internal::fused_linear, half);
+DISPATCH_TERNARY(fused_linear, half);
 
 #if __CUDA_ARCH__ >= 800
-DISPATCH_TERNARY(internal::fused_linear, float);
+DISPATCH_TERNARY(fused_linear, float);
 #endif

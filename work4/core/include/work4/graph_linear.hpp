@@ -1,12 +1,12 @@
-#ifndef _FUSED_LINEAR_HPP_
-#define _FUSED_LINEAR_HPP_
+#ifndef _GRAPH_LINEAR_HPP_
+#define _GRAPH_LINEAR_HPP_
 
 #include "work2/matrix/matrix_view.cuh"
 
 template <ScalarKind ScalarT>
-MatrixView<ScalarT>& fused_linear(MatrixView<ScalarT>& y,
+MatrixView<ScalarT>& graph_linear(MatrixView<ScalarT>& y,
     const MatrixView<ScalarT>& x,
     const MatrixView<ScalarT>& w,
     const MatrixView<ScalarT>& b);
 
-#endif  // _FUSED_LINEAR_HPP_
+#endif  // _GRAPH_LINEAR_HPP_

@@ -3,8 +3,9 @@
 #include "work2/mm_impls/op_bundle_kind.hpp"
 #include "work2/tests/matrix_test_helpers.hpp"
 #include "work4/default_bundle.hpp"
-#include "work4/fused_linear.hpp"
-#include "work4/naive_linear.hpp"
+#include "work4/fused_linear_operator.hpp"
+#include "work4/graph_linear_operator.hpp"
+#include "work4/naive_linear_operator.hpp"
 
 using LinearTestParams = MatrixTestParams;
 
@@ -40,12 +41,17 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
 
   template <class EigenMatrixT>
   bool linear_test_template_naive_(const LinearTestParams& params) {
-    return linear_test_template_<naive_linear, EigenMatrixT>(params);
+    return linear_test_template_<naive_linear_operator, EigenMatrixT>(params);
   }
 
   template <class EigenMatrixT>
   bool linear_test_template_fused_(const LinearTestParams& params) {
-    return linear_test_template_<fused_linear, EigenMatrixT>(params);
+    return linear_test_template_<fused_linear_operator, EigenMatrixT>(params);
+  }
+
+  template <class EigenMatrixT>
+  bool linear_test_template_grpah_(const LinearTestParams& params) {
+    return linear_test_template_<graph_linear_operator, EigenMatrixT>(params);
   }
 
  protected:
@@ -53,7 +59,10 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
       linear_test_template_naive_, naive_linear_test_, LinearTestParams, 2);
 
   DISPATCH_MATRIX_TEST_CASE(
-      linear_test_template_naive_, fused_linear_test_, LinearTestParams, 2);
+      linear_test_template_fused_, fused_linear_test_, LinearTestParams, 2);
+
+  DISPATCH_MATRIX_TEST_CASE(
+      linear_test_template_grpah_, graph_linear_test_, LinearTestParams, 2);
 };
 
 #define INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tile_size, tol) \
@@ -67,6 +76,13 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
   INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsFused,           \
       LinearTest,                                                                        \
       fused_linear_test_,                                                                \
+      impl_bundle,                                                                       \
+      scalar_type,                                                                       \
+      tile_size,                                                                         \
+      tol)                                                                               \
+  INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsGrpah,           \
+      LinearTest,                                                                        \
+      graph_linear_test_,                                                                \
       impl_bundle,                                                                       \
       scalar_type,                                                                       \
       tile_size,                                                                         \

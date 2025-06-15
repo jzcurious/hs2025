@@ -4,9 +4,9 @@
 #include <cuda_fp16.h>
 
 #define DISPATCH_BINARY(impl, scalar_type)                                               \
-  template MatrixView<scalar_type>& impl<scalar_type>(MatrixView<scalar_type> & c,       \
-      const MatrixView<scalar_type>& a,                                                  \
-      const MatrixView<scalar_type>& b);
+  template MatrixView<scalar_type>& impl<scalar_type>(MatrixView<scalar_type>&,          \
+      const MatrixView<scalar_type>&,                                                    \
+      const MatrixView<scalar_type>&);
 
 #define DISPATCH_BINARY_FOR_ALL_TYPES(impl)                                              \
   DISPATCH_BINARY(impl, float);                                                          \
