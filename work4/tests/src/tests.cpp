@@ -79,14 +79,14 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
       impl_bundle,                                                                       \
       scalar_type,                                                                       \
       tile_size,                                                                         \
-      tol)                                                                               \
+      tol);                                                                              \
   INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsGrpah,           \
       LinearTest,                                                                        \
       graph_linear_test_,                                                                \
       impl_bundle,                                                                       \
       scalar_type,                                                                       \
       tile_size,                                                                         \
-      tol)
+      tol);
 
 INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(OpBundleDefault, half, 16, 1e-2);
 
