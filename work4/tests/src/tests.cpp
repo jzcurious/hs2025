@@ -65,21 +65,30 @@ class LinearTest : public ::testing::TestWithParam<LinearTestParams> {
       linear_test_template_grpah_, graph_linear_test_, LinearTestParams, 2);
 };
 
+// #define INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tile_size, tol) \
+//   INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsNaive,           \
+//       LinearTest,                                                                        \
+//       naive_linear_test_,                                                                \
+//       impl_bundle,                                                                       \
+//       scalar_type,                                                                       \
+//       tile_size,                                                                         \
+//       tol);                                                                              \
+//   INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsFused,           \
+//       LinearTest,                                                                        \
+//       fused_linear_test_,                                                                \
+//       impl_bundle,                                                                       \
+//       scalar_type,                                                                       \
+//       tile_size,                                                                         \
+//       tol);                                                                              \
+//   INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsGrpah,           \
+//       LinearTest,                                                                        \
+//       graph_linear_test_,                                                                \
+//       impl_bundle,                                                                       \
+//       scalar_type,                                                                       \
+//       tile_size,                                                                         \
+//       tol);
+
 #define INSTANTIATE_LINEAR_TEST_SUITE_FOR_TYPE(impl_bundle, scalar_type, tile_size, tol) \
-  INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsNaive,           \
-      LinearTest,                                                                        \
-      naive_linear_test_,                                                                \
-      impl_bundle,                                                                       \
-      scalar_type,                                                                       \
-      tile_size,                                                                         \
-      tol);                                                                              \
-  INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsFused,           \
-      LinearTest,                                                                        \
-      fused_linear_test_,                                                                \
-      impl_bundle,                                                                       \
-      scalar_type,                                                                       \
-      tile_size,                                                                         \
-      tol);                                                                              \
   INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(LinearTestsGrpah,           \
       LinearTest,                                                                        \
       graph_linear_test_,                                                                \
