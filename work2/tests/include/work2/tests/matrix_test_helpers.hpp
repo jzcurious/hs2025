@@ -65,26 +65,26 @@ bool is_approx_eigen(
         params);                                                                         \
   }
 
-#define INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE(test_suite_name,                             \
-    test_class_template,                                                                    \
-    test_function,                                                                          \
-    impl_bundle,                                                                            \
-    scalar_type,                                                                            \
-    tile_size,                                                                              \
-    tol,                                                                                    \
-    values)                                                                                 \
-                                                                                            \
-  using test_class_template##_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size \
-      = test_class_template<impl_bundle, scalar_type>;                                      \
-                                                                                            \
-  TEST_P(                                                                                   \
-      test_class_template##_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size,  \
-      test_function##scalar_type) {                                                         \
-    EXPECT_TRUE(test_function(this->GetParam()));                                           \
-  }                                                                                         \
-                                                                                            \
-  INSTANTIATE_TEST_SUITE_P(test_suite_name,                                                 \
-      test_class_template##_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size,  \
+#define INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE(test_suite_name,                                                  \
+    test_class_template,                                                                                         \
+    test_function,                                                                                               \
+    impl_bundle,                                                                                                 \
+    scalar_type,                                                                                                 \
+    tile_size,                                                                                                   \
+    tol,                                                                                                         \
+    values)                                                                                                      \
+                                                                                                                 \
+  using test_class_template##_##test_function##_##_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size \
+      = test_class_template<impl_bundle, scalar_type>;                                                           \
+                                                                                                                 \
+  TEST_P(                                                                                                        \
+      test_class_template##_##test_function##_##_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size,  \
+      test_function##scalar_type) {                                                                              \
+    EXPECT_TRUE(test_function(this->GetParam()));                                                                \
+  }                                                                                                              \
+                                                                                                                 \
+  INSTANTIATE_TEST_SUITE_P(test_suite_name,                                                                      \
+      test_class_template##_##test_function##_##_##impl_bundle##_##scalar_type##_tile##tile_size##x##tile_size,  \
       values);
 
 #define INSTANTIATE_MATRIX_TEST_SUITE_FOR_TYPE_WITH_DEFAULT_VALUES(test_suite_name,      \

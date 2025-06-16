@@ -20,7 +20,7 @@ MatrixView<ScalarT>& graph_linear(MatrixView<ScalarT>& y,
 
   cudaStream_t stream;
   cudaStreamCreate(&stream);
-  cudaStreamBeginCapture(stream, cudaStreamCaptureModeThreadLocal);
+  cudaStreamBeginCapture(stream, cudaStreamCaptureModeGlobal);
 
   if (x.colmajor) {
     kernel_mm_wmma<MatrixView<ScalarT>, true, wmma_size.x, wmma_size.y, wmma_size.z>

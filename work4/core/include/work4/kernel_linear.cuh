@@ -42,11 +42,9 @@ __global__ void kernel_linear(
   wmma::store_matrix_sync(
       y.data(i, j), fy, y.ldim(), colmajor ? wmma::mem_col_major : wmma::mem_row_major);
 
-  j = blockIdx.x * blockDim.x + threadIdx.x;
-
-  if (j < y.size(1))
+  if ((threadIdx.x < wmma_n) and (j + threadIdx.x < y.size(1)))
     for (std::uint32_t t = i; (t < y.size(0)) and (t < i + wmma_m); ++t)
-      y(t, j) += b(0, j);
+      y(t, j + threadIdx.x) += b(0, j + threadIdx.x);
 }
 
 #endif  // _KERNEL_LINEAR_CUH_
