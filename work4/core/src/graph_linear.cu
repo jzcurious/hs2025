@@ -5,6 +5,37 @@
 
 #include "cudagh.hpp"
 
+namespace detail {
+
+struct GraphSuit {
+ private:
+  cudaStream_t _stream;
+  cudaGraph_t _graph;
+  cudaGraphExec_t _graph_inst;
+
+ public:
+  GraphSuit() {
+    cudaStreamCreate(&_stream);
+    cudaStreamBeginCapture(_stream, cudaStreamCaptureModeGlobal);
+  }
+
+  ~GraphSuit() {
+    cudaStreamEndCapture(_stream, &_graph);
+    cudaGraphInstantiate(&_graph_inst, _graph);
+    cudaGraphLaunch(_graph_inst, _stream);
+    cudaStreamSynchronize(_stream);
+    cudaGraphExecDestroy(_graph_inst);
+    cudaGraphDestroy(_graph);
+    cudaStreamDestroy(_stream);
+  }
+
+  cudaStream_t stream() const {
+    return _stream;
+  }
+};
+
+}  // namespace detail
+
 template <ScalarKind ScalarT>
 MatrixView<ScalarT>& graph_linear(MatrixView<ScalarT>& y,
     const MatrixView<ScalarT>& x,
@@ -24,31 +55,18 @@ MatrixView<ScalarT>& graph_linear(MatrixView<ScalarT>& y,
       cudagh::cover(x.size(0), block_size.y),
   };
 
-  cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  {
+    auto graph_suit = detail::GraphSuit();
 
-  cudaGraph_t graph;
-  cudaGraphExec_t graph_inst;
-
-  cudaStreamBeginCapture(stream, cudaStreamCaptureModeGlobal);
-  if (x.colmajor) {
-    kernel_mm_wmma<MatrixView<ScalarT>, true, wmma_size.x, wmma_size.y, wmma_size.z>
-        <<<mm_grid_size, block_size, 0, stream>>>(y, x, w);
-  } else {
-    kernel_mm_wmma<MatrixView<ScalarT>, false, wmma_size.x, wmma_size.y, wmma_size.z>
-        <<<mm_grid_size, block_size, 0, stream>>>(y, x, w);
+    if (x.colmajor) {
+      kernel_mm_wmma<MatrixView<ScalarT>, true, wmma_size.x, wmma_size.y, wmma_size.z>
+          <<<mm_grid_size, block_size, 0, graph_suit.stream()>>>(y, x, w);
+    } else {
+      kernel_mm_wmma<MatrixView<ScalarT>, false, wmma_size.x, wmma_size.y, wmma_size.z>
+          <<<mm_grid_size, block_size, 0, graph_suit.stream()>>>(y, x, w);
+    }
+    kernel_broadcast_add<<<add_grid_size, block_size, 0, graph_suit.stream()>>>(y, y, b);
   }
-  kernel_broadcast_add<<<add_grid_size, block_size, 0, stream>>>(y, y, b);
-  cudaStreamEndCapture(stream, &graph);
-
-  cudaGraphInstantiate(&graph_inst, graph);
-
-  cudaGraphLaunch(graph_inst, stream);
-  cudaStreamSynchronize(stream);
-
-  cudaGraphExecDestroy(graph_inst);
-  cudaGraphDestroy(graph);
-  cudaStreamDestroy(stream);
 
   return y;
 }
