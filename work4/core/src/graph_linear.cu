@@ -36,17 +36,6 @@ MatrixView<ScalarT>& GraphLinear::graph_linear(MatrixView<ScalarT>& y,
   return y;
 }
 
-GraphLinear::GraphLinear()
-    : _graph_created(false) {
-  cudaStreamCreate(&_stream);
-}
-
-GraphLinear::~GraphLinear() {
-  cudaGraphExecDestroy(_graph_inst);
-  cudaGraphDestroy(_graph);
-  cudaStreamDestroy(_stream);
-}
-
 template <ScalarKind ScalarT>
 MatrixView<ScalarT>& GraphLinear::operator()(MatrixView<ScalarT>& y,
     const MatrixView<ScalarT>& x,
