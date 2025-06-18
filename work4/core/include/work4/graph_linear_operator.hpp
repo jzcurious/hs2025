@@ -7,7 +7,7 @@
 template <MatrixKind MatrixT>
 MatrixT graph_linear_operator(const MatrixT& x, const MatrixT& w, const MatrixT& b) {
   auto y = MatrixT(x.size(0), w.size(1), x.ops().hpad(w.view().hpad()));
-  graph_linear<typename MatrixT::scalar_t>(y.view(), x.view(), w.view(), b.view());
+  graph_linear(y.view(), x.view(), w.view(), b.view());
   return y;
 }
 

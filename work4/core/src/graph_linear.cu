@@ -5,39 +5,8 @@
 
 #include "cudagh.hpp"
 
-namespace detail {
-
-struct GraphSuit {
- private:
-  cudaStream_t _stream;
-  cudaGraph_t _graph;
-  cudaGraphExec_t _graph_inst;
-
- public:
-  GraphSuit() {
-    cudaStreamCreate(&_stream);
-    cudaStreamBeginCapture(_stream, cudaStreamCaptureModeGlobal);
-  }
-
-  ~GraphSuit() {
-    cudaStreamEndCapture(_stream, &_graph);
-    cudaGraphInstantiate(&_graph_inst, _graph);
-    cudaGraphLaunch(_graph_inst, _stream);
-    cudaStreamSynchronize(_stream);
-    cudaGraphExecDestroy(_graph_inst);
-    cudaGraphDestroy(_graph);
-    cudaStreamDestroy(_stream);
-  }
-
-  cudaStream_t stream() const {
-    return _stream;
-  }
-};
-
-}  // namespace detail
-
 template <ScalarKind ScalarT>
-MatrixView<ScalarT>& graph_linear(MatrixView<ScalarT>& y,
+MatrixView<ScalarT>& GraphLinear::graph_linear(MatrixView<ScalarT>& y,
     const MatrixView<ScalarT>& x,
     const MatrixView<ScalarT>& w,
     const MatrixView<ScalarT>& b) {
@@ -55,24 +24,52 @@ MatrixView<ScalarT>& graph_linear(MatrixView<ScalarT>& y,
       cudagh::cover(x.size(0), block_size.y),
   };
 
-  {
-    auto graph_suit = detail::GraphSuit();
-
-    if (x.colmajor) {
-      kernel_mm_wmma<MatrixView<ScalarT>, true, wmma_size.x, wmma_size.y, wmma_size.z>
-          <<<mm_grid_size, block_size, 0, graph_suit.stream()>>>(y, x, w);
-    } else {
-      kernel_mm_wmma<MatrixView<ScalarT>, false, wmma_size.x, wmma_size.y, wmma_size.z>
-          <<<mm_grid_size, block_size, 0, graph_suit.stream()>>>(y, x, w);
-    }
-    kernel_broadcast_add<<<add_grid_size, block_size, 0, graph_suit.stream()>>>(y, y, b);
+  if (x.colmajor) {
+    kernel_mm_wmma<MatrixView<ScalarT>, true, wmma_size.x, wmma_size.y, wmma_size.z>
+        <<<mm_grid_size, block_size, 0, _stream>>>(y, x, w);
+  } else {
+    kernel_mm_wmma<MatrixView<ScalarT>, false, wmma_size.x, wmma_size.y, wmma_size.z>
+        <<<mm_grid_size, block_size, 0, _stream>>>(y, x, w);
   }
+  kernel_broadcast_add<<<add_grid_size, block_size, 0, _stream>>>(y, y, b);
 
   return y;
 }
 
-DISPATCH_TERNARY(graph_linear, half);
+GraphLinear::GraphLinear()
+    : _graph_created(false) {
+  cudaStreamCreate(&_stream);
+}
+
+GraphLinear::~GraphLinear() {
+  cudaGraphExecDestroy(_graph_inst);
+  cudaGraphDestroy(_graph);
+  cudaStreamDestroy(_stream);
+}
+
+template <ScalarKind ScalarT>
+MatrixView<ScalarT>& GraphLinear::operator()(MatrixView<ScalarT>& y,
+    const MatrixView<ScalarT>& x,
+    const MatrixView<ScalarT>& w,
+    const MatrixView<ScalarT>& b) {
+
+  if (not _graph_created) {
+    cudaStreamBeginCapture(_stream, cudaStreamCaptureModeGlobal);
+    graph_linear(y, x, w, b);
+    cudaStreamEndCapture(_stream, &_graph);
+    cudaGraphInstantiate(&_graph_inst, _graph);
+  }
+
+  cudaGraphLaunch(_graph_inst, _stream);
+  cudaStreamSynchronize(_stream);
+
+  return y;
+}
+
+GraphLinear graph_linear;
+
+DISPATCH_TERNARY(GraphLinear::operator(), half);
 
 #if __CUDA_ARCH__ >= 800
-DISPATCH_TERNARY(graph_linear, float);
+DISPATCH_TERNARY(GraphLinear::operator(), float);
 #endif

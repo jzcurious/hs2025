@@ -20,7 +20,7 @@ void BM_GPULinearTemplate(benchmark::State& state) {
 
   auto x = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
   auto w = matrix_t(mrows_ncols, mrows_ncols, {.colmajor_ = colmajor});
-  auto b = matrix_t(mrows_ncols, 1, {.colmajor_ = colmajor});
+  auto b = matrix_t(1, mrows_ncols, {.colmajor_ = colmajor});
 
   for (auto _ : state) {
     float elapsed_time = 0;
@@ -93,7 +93,6 @@ BENCHMARK_GPU_LINEAR_TEMPLATE_PRESET_1(
 BENCHMARK_GPU_LINEAR_TEMPLATE_PRESET_1(
     MAKE_LINEAR_LAMBDA(graph_linear_operator), float, true)
     ->Name("CUDA Linear (graph, float, col-major)");
-
 #endif
 
 BENCHMARK_MAIN();
