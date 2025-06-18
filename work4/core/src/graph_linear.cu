@@ -58,6 +58,7 @@ MatrixView<ScalarT>& GraphLinear::operator()(MatrixView<ScalarT>& y,
     graph_linear(y, x, w, b);
     cudaStreamEndCapture(_stream, &_graph);
     cudaGraphInstantiate(&_graph_inst, _graph);
+    _graph_created = true;
   }
 
   cudaGraphLaunch(_graph_inst, _stream);
